@@ -1,7 +1,7 @@
 from os import listdir
 import xml.etree.ElementTree
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 import utils
 
 

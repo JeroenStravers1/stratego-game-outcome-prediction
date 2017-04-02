@@ -2,6 +2,7 @@ from shutil import copy
 import sys
 sys.path.append("../")
 import game_ending_type_extraction as g_e_t_extraction
+sys.path.append("../")
 import utils
 
 
@@ -13,6 +14,7 @@ class CleanedDatasetProvider:
 
     _CLEANED_DATA_DIR = "../Cleaned_Stratego_Games/strados_clean"
     _CONNECTION_ISSUE_ENDING_TYPES = [10, 11, 12, 13, 14]
+    _DRAW_ENDING_TYPES = [2, 4]
 
     def __init__(self, target_path):
         self._main_log_directory = target_path
@@ -35,10 +37,11 @@ class CleanedDatasetProvider:
         :param log_path: path to the current log file
         """
         if ending_type not in self._CONNECTION_ISSUE_ENDING_TYPES:
-            try:
-                copy(log_path, self._clean_dataset_dir_path)
-            except IOError as ioerror:
-                print(ioerror)
+            if ending_type not in self._DRAW_ENDING_TYPES:
+                try:
+                    copy(log_path, self._clean_dataset_dir_path)
+                except IOError as ioerror:
+                    print(ioerror)
 
 
 if __name__ == "__main__":
