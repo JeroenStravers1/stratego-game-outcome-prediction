@@ -1,9 +1,17 @@
 
 
-class FeatureExtractor:
 
-    def __init__(self):
-        pass
+def extract_features(grid):
+    pass
 
-    def extract_features(self, grid):
-        pass
+
+def calculate_piece_values(grid: list, revealed_grid: list) -> list:
+    """
+    :param grid:
+    :param revealed_grid:
+    :return: grid with values on positions
+    """
+    pass
+
+
+
