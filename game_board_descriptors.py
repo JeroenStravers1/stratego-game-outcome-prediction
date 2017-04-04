@@ -41,7 +41,8 @@ def generate_chunk_coordinates() -> dict:
     :return: chunk name : list(location coordinates in that chunk)
     """
     chunk_dimensions = dict()
-    for key, dimensions in CHUNKS_TOP_LEFT_DIMENSIONS:
+    for key in CHUNKS_TOP_LEFT_DIMENSIONS.keys():
+        dimensions = CHUNKS_TOP_LEFT_DIMENSIONS[key]
         start_position = dimensions[TOP_LEFT_COORDINATES]
         chunk_width = dimensions[CHUNK_WIDTH]
         chunk_depth = dimensions[CHUNK_HEIGHT]
@@ -49,7 +50,7 @@ def generate_chunk_coordinates() -> dict:
         col_index = start_position[X_POS]
         coordinates = list()
         for horizontal_tile in range(chunk_width):
-            for vertical_tile in range(chunk_depth):# start-x + horizontaltile,  start-y - verticaltile
+            for vertical_tile in range(chunk_depth):
                 current_row_index = row_index - vertical_tile
                 current_col_index = col_index + horizontal_tile
                 coordinate = [current_row_index, current_col_index]

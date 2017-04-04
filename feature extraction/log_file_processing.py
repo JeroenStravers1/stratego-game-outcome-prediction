@@ -251,18 +251,17 @@ class LogProcessor:
                 unrevealed_pieces[target_location[self._ROW]][target_location[self._COLUMN]] = ranks.EMPTY
                 unrevealed_pieces[source_location[self._ROW]][source_location[self._COLUMN]] = ranks.EMPTY
 
-
     def _store_initial_and_extracted_features_in_csv(self, deployment_features: dict,
                                                      turn_effect_generator: collections.Iterable,
                                                      output_file_path: str):
         # with open(output_file_path, "a+") as output_file:
         #     output_file.write()
-
         for game_state, unmoved_pieces, unrevealed_pieces in turn_effect_generator:
             current_turn_features = api.calculate_features(game_state, unmoved_pieces, unrevealed_pieces)
 
     def _convert_features_to_string(self):
         pass
+
 
 if __name__ == "__main__":
     example_path = ("C:/Users/Jeroen/Desktop/test")
