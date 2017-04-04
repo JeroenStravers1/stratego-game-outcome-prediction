@@ -3,13 +3,15 @@ import sys
 import string
 import copy
 import numpy as np
+import collections
 import xml.etree.ElementTree as xml_tree
 sys.path.append("../")
 from game_state_tracking import GameStateTracker
+import api_stratego_prediction as api
 sys.path.append("../")
 import utils
 import rank_encodings as ranks
-
+import game_board_descriptors as board_desc
 
 class LogProcessor:
     """
@@ -45,7 +47,7 @@ class LogProcessor:
     _MOVE_LOSE = 2
     _MOVE_EMPTY = 3
 
-    _TURN
+    # _TURN
 
     def __init__(self, cleaned_logs_path: str) -> None:
         """
@@ -73,9 +75,14 @@ class LogProcessor:
         log_xml_root = xml_tree.parse(log_file_path).getroot()
         game_node = log_xml_root.find(self._GAME_NODE)
         winner = self._interpret_game_log_winner(game_node) #FIXME use winner to annotate class!
-        player_deployment, moved_pieces, revealed_pieces = self._interpret_starting_position(game_node)
-        game_state_tracker = GameStateTracker(player_deployment, moved_pieces, revealed_pieces)
-        self._interpret_turns(game_node, winner, game_state_tracker)
+        player_deployment, unmoved_pieces, unrevealed_pieces = self._interpret_starting_position(game_node) # moet een keer voor de beginopstellinge en aparte calc feature call gooien.
+
+        # FIXME
+        first_turn_features = api.calculate_features(player_deployment, unmoved_pieces, unrevealed_pieces)
+        turn_effect_generator  = self._interpret_turns(game_node, player_deployment, unmoved_pieces, unrevealed_pieces)
+
+        self._store_initial_and_extracted_features_in_csv(dict(), turn_effect_generator, "") #FIXME placeholder args for #0 and #2
+
 
     def _interpret_game_log_winner(self, game_node: xml_tree.Element) -> int:
         """
@@ -101,15 +108,29 @@ class LogProcessor:
         revealed_pieces = list()
         for row_index in range(self._ROWS_AMOUNT):
             reverse_index = self._COLS_AMOUNT - row_index - self._START_AT_ZERO_MODIFIER
-            start_of_row = reverse_index * self._COLS_AMOUNT
-            end_or_row = self._COLS_AMOUNT + (reverse_index * self._COLS_AMOUNT)
+            start_of_row = row_index * self._COLS_AMOUNT#reverse_index * self._COLS_AMOUNT
+            end_or_row = self._COLS_AMOUNT + row_index * self._COLS_AMOUNT#(reverse_index * self._COLS_AMOUNT)
             current_row = list(deployment_as_single_string[start_of_row:end_or_row])
             deployment.append(current_row)
-            unmoved_pieces.append(current_row)
-            revealed_pieces.append(current_row)
+            unmoved_pieces.append(copy.deepcopy(current_row))
+            revealed_pieces.append(copy.deepcopy(current_row))
         return deployment, unmoved_pieces, revealed_pieces
 
-    def _interpret_turns(self, game_node: xml_tree.Element, winner: int, game_state_tracker: GameStateTracker) -> None:
+    # def _interpret_turns(self, game_node: xml_tree.Element, winner: int, game_state_tracker: GameStateTracker) -> None:
+    #     """
+    #     process each player turn in a log
+    #     :param game_node: the xml tree node containing all game log information
+    #     :param winner: the winning player
+    #     :param game_state_tracker: object containing 2d list representations of game piece positions on the board
+    #     """
+    #     turn_nodes = game_node.findall(self._MOVE_NODE)
+    #     #self._feature_extractor.extract_features(game_state_tracker) #FIXME
+    #     for node in turn_nodes:
+    #         source = node.get(self._SOURCE)
+    #         target = node.get(self._TARGET)
+    #         self._interpret_move(source, target, game_state_tracker)
+    #         yield
+    def _interpret_turns(self, game_node: xml_tree.Element, board_state, unmoved_pieces, unrevealed_pieces) -> None:
         """
         process each player turn in a log
         :param game_node: the xml tree node containing all game log information
@@ -121,27 +142,30 @@ class LogProcessor:
         for node in turn_nodes:
             source = node.get(self._SOURCE)
             target = node.get(self._TARGET)
-            self._interpret_move(source, target, game_state_tracker)
 
-    def _interpret_move(self, source: str, target: str, game_state_tracker: GameStateTracker) -> None:
+            yield self._interpret_move(source, target, board_state, unmoved_pieces, unrevealed_pieces)
+            # self._interpret_move(source, target, board_state, unmoved_pieces, unrevealed_pieces) #FIXME
+
+    def _interpret_move(self, source: str, target: str, board_state: list, unmoved_pieces: list, #FIXME comment
+                        unrevealed_pieces: list) -> None:
         """
         determine the board state after a player's move
         :param source: the moving piece
         :param target: the target tile
         :param game_state_tracker: object containing 2d list representations of game piece positions on the board
         """
-        source_location = self._parse_location_encoding_to_row_column(source)# get [y,x]
+        source_location = self._parse_location_encoding_to_row_column(source)
         target_location = self._parse_location_encoding_to_row_column(target)
-        source_piece = game_state_tracker.board_state[source_location[self._ROW]][source_location[self._COLUMN]] # get piece at location
-        target_piece = game_state_tracker.board_state[target_location[self._ROW]][target_location[self._COLUMN]]
+        source_piece = board_state[source_location[self._ROW]][source_location[self._COLUMN]]
+        target_piece = board_state[target_location[self._ROW]][target_location[self._COLUMN]]
         result_source_tile, result_target_tile, move_result = self._determine_move_to_result(source_piece, target_piece)
-        game_state_tracker.board_state[source_location[self._ROW]][source_location[self._COLUMN]] = result_source_tile
-        game_state_tracker.board_state[target_location[self._ROW]][target_location[self._COLUMN]] = result_target_tile
-        game_state_tracker.unmoved_pieces[source_location[self._ROW]][source_location[self._COLUMN]] = ranks.EMPTY
-        game_state_tracker.unmoved_pieces[target_location[self._ROW]][target_location[self._COLUMN]] = ranks.EMPTY
+        board_state[source_location[self._ROW]][source_location[self._COLUMN]] = result_source_tile
+        board_state[target_location[self._ROW]][target_location[self._COLUMN]] = result_target_tile
+        unmoved_pieces[source_location[self._ROW]][source_location[self._COLUMN]] = ranks.EMPTY
+        unmoved_pieces[target_location[self._ROW]][target_location[self._COLUMN]] = ranks.EMPTY
         self._determine_moved_pieces(source_location, target_location, move_result,
-                                     game_state_tracker.unrevealed_pieces)
-        game_state_tracker.turns += self._TURN
+                                     unrevealed_pieces)
+        return board_state, unmoved_pieces, unrevealed_pieces
 
     def _parse_location_encoding_to_row_column(self, location: str) -> [int, int]:
         """
@@ -170,9 +194,9 @@ class LogProcessor:
         :return: the updated ranks in the source and target tiles with the result
         """
         if target == ranks.EMPTY:
-            return ranks.EMPTY, source, self._MOVE_EMPTY#FIXME keep track of revealed/moved pieces here! (do this by keeping copies of the game board array. The "hasmoved: array can work with deletion on move.
-        elif target in [ranks.B_F, ranks.R_F]: # TODO do the above by adding 2 positional args here. BTW, the source piece ALWAYS moves here. Identification is another matter though.
-            return ranks.EMPTY, source, self._MOVE_WIN  # FIXME track progress variables (turns, moves_toward_opponent) as external variables, pass by reference to feature_extractor
+            return ranks.EMPTY, source, self._MOVE_EMPTY
+        elif target in [ranks.B_F, ranks.R_F]:
+            return ranks.EMPTY, source, self._MOVE_WIN
         elif source in [ranks.B_3, ranks.R_3] and target in [ranks.B_B, ranks.R_B]:
             return ranks.EMPTY, source, self._MOVE_WIN
         elif target in [ranks.B_B, ranks.R_B]:
@@ -227,6 +251,18 @@ class LogProcessor:
                 unrevealed_pieces[target_location[self._ROW]][target_location[self._COLUMN]] = ranks.EMPTY
                 unrevealed_pieces[source_location[self._ROW]][source_location[self._COLUMN]] = ranks.EMPTY
 
+
+    def _store_initial_and_extracted_features_in_csv(self, deployment_features: dict,
+                                                     turn_effect_generator: collections.Iterable,
+                                                     output_file_path: str):
+        # with open(output_file_path, "a+") as output_file:
+        #     output_file.write()
+
+        for game_state, unmoved_pieces, unrevealed_pieces in turn_effect_generator:
+            current_turn_features = api.calculate_features(game_state, unmoved_pieces, unrevealed_pieces)
+
+    def _convert_features_to_string(self):
+        pass
 
 if __name__ == "__main__":
     example_path = ("C:/Users/Jeroen/Desktop/test")

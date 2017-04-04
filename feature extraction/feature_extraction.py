@@ -1,7 +1,7 @@
 
 
 
-def extract_features(grid):
+def extract_features(grid) -> dict:
     pass
 
 
