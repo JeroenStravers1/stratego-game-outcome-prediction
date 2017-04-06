@@ -3,6 +3,8 @@ import os
 
 LAST_ITEM_IN_LIST = -1
 FORWARD_SLASH = "/"
+START_AT_ZERO_MODIFIER = 1
+EMPTY = 0
 
 
 def ensure_cleaned_dir_exists(directory_path):

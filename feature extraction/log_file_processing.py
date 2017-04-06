@@ -5,13 +5,13 @@ import copy
 import numpy as np
 import collections
 import xml.etree.ElementTree as xml_tree
-sys.path.append("../")
 from game_state_tracking import GameStateTracker
 import api_stratego_prediction as api
 sys.path.append("../")
 import utils
 import rank_encodings as ranks
 import game_board_descriptors as board_desc
+
 
 class LogProcessor:
     """
@@ -36,7 +36,6 @@ class LogProcessor:
     _COLUMN = 1
     _CHAR_COLON = ":"
     _COLON_VALUE = "10"
-    _START_AT_ZERO_MODIFIER = 1
 
     _RED = 1
     _BLUE = 2
@@ -79,8 +78,8 @@ class LogProcessor:
 
         # FIXME
         first_turn_features = api.calculate_features(player_deployment, unmoved_pieces, unrevealed_pieces)
-        turn_effect_generator  = self._interpret_turns(game_node, player_deployment, unmoved_pieces, unrevealed_pieces)
 
+        turn_effect_generator  = self._interpret_turns(game_node, player_deployment, unmoved_pieces, unrevealed_pieces)
         self._store_initial_and_extracted_features_in_csv(dict(), turn_effect_generator, "") #FIXME placeholder args for #0 and #2
 
 
@@ -94,7 +93,7 @@ class LogProcessor:
         winning_player = int(result_node.get(self._WINNER))
         return winning_player
 
-    def _interpret_starting_position(self, game_node: xml_tree.Element) -> [list, list, list]:
+    def _interpret_starting_position(self, game_node: xml_tree.Element) -> [np.ndarray, np.ndarray, np.ndarray]:
         """
         convert the inverted (upside-down) single string player deployment to a regular 2d list
         :param game_node: the xml tree node containing all game log information
@@ -107,29 +106,14 @@ class LogProcessor:
         unmoved_pieces = list()
         revealed_pieces = list()
         for row_index in range(self._ROWS_AMOUNT):
-            reverse_index = self._COLS_AMOUNT - row_index - self._START_AT_ZERO_MODIFIER
-            start_of_row = row_index * self._COLS_AMOUNT#reverse_index * self._COLS_AMOUNT
-            end_or_row = self._COLS_AMOUNT + row_index * self._COLS_AMOUNT#(reverse_index * self._COLS_AMOUNT)
+            start_of_row = row_index * self._COLS_AMOUNT
+            end_or_row = self._COLS_AMOUNT + row_index * self._COLS_AMOUNT
             current_row = list(deployment_as_single_string[start_of_row:end_or_row])
             deployment.append(current_row)
             unmoved_pieces.append(copy.deepcopy(current_row))
             revealed_pieces.append(copy.deepcopy(current_row))
-        return deployment, unmoved_pieces, revealed_pieces
+        return np.array(deployment), np.array(unmoved_pieces), np.array(revealed_pieces)
 
-    # def _interpret_turns(self, game_node: xml_tree.Element, winner: int, game_state_tracker: GameStateTracker) -> None:
-    #     """
-    #     process each player turn in a log
-    #     :param game_node: the xml tree node containing all game log information
-    #     :param winner: the winning player
-    #     :param game_state_tracker: object containing 2d list representations of game piece positions on the board
-    #     """
-    #     turn_nodes = game_node.findall(self._MOVE_NODE)
-    #     #self._feature_extractor.extract_features(game_state_tracker) #FIXME
-    #     for node in turn_nodes:
-    #         source = node.get(self._SOURCE)
-    #         target = node.get(self._TARGET)
-    #         self._interpret_move(source, target, game_state_tracker)
-    #         yield
     def _interpret_turns(self, game_node: xml_tree.Element, board_state, unmoved_pieces, unrevealed_pieces) -> None:
         """
         process each player turn in a log
@@ -138,16 +122,13 @@ class LogProcessor:
         :param game_state_tracker: object containing 2d list representations of game piece positions on the board
         """
         turn_nodes = game_node.findall(self._MOVE_NODE)
-        #self._feature_extractor.extract_features(game_state_tracker) #FIXME
         for node in turn_nodes:
             source = node.get(self._SOURCE)
             target = node.get(self._TARGET)
-
             yield self._interpret_move(source, target, board_state, unmoved_pieces, unrevealed_pieces)
-            # self._interpret_move(source, target, board_state, unmoved_pieces, unrevealed_pieces) #FIXME
 
     def _interpret_move(self, source: str, target: str, board_state: list, unmoved_pieces: list, #FIXME comment
-                        unrevealed_pieces: list) -> None:
+                        unrevealed_pieces: list) -> [np.ndarray, np.ndarray, np.ndarray]:
         """
         determine the board state after a player's move
         :param source: the moving piece
@@ -165,7 +146,7 @@ class LogProcessor:
         unmoved_pieces[target_location[self._ROW]][target_location[self._COLUMN]] = ranks.EMPTY
         self._determine_moved_pieces(source_location, target_location, move_result,
                                      unrevealed_pieces)
-        return board_state, unmoved_pieces, unrevealed_pieces
+        return np.array(board_state), np.array(unmoved_pieces), np.array(unrevealed_pieces)
 
     def _parse_location_encoding_to_row_column(self, location: str) -> [int, int]:
         """
@@ -177,12 +158,12 @@ class LogProcessor:
         raw_row = location[self._Y_AXIS]
         if raw_row == self._CHAR_COLON:
             raw_row = self._COLON_VALUE
-        row = int(raw_row) - self._START_AT_ZERO_MODIFIER
+        row = int(raw_row) - utils.START_AT_ZERO_MODIFIER
 
         raw_column = location[self._X_AXIS].lower()
         column = string.ascii_lowercase.index(raw_column)
         if column >= self._COLS_AMOUNT:
-            column = self._COLS_AMOUNT - self._START_AT_ZERO_MODIFIER
+            column = self._COLS_AMOUNT - utils.START_AT_ZERO_MODIFIER
 
         return [row, column]
 
