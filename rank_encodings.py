@@ -9,11 +9,14 @@ PLAYER_RED = 0
 PLAYER_BLUE = 1
 
 BASE_VALUE = 5
-RED_PIECES_LIST = ("B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M")
-BLUE_PIECES_LIST = ("N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y")
+RED_PIECES_LIST = ["B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"]
+BLUE_PIECES_LIST = ["N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"]
 
-RED_MOVABLE_PIECES = ("C", "D", "E", "F", "G", "H", "I", "J", "K", "L")
-BLUE_MOVABLE_PIECES = ("O", "P", "Q", "R", "S", "T", "U", "V", "W", "X")
+RED_MOVABLE_PIECES = ["C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
+BLUE_MOVABLE_PIECES = ["O", "P", "Q", "R", "S", "T", "U", "V", "W", "X"]
+
+RED_EXCEPTIONAL_VALUE_MOVABLE_PIECES = ["C", "D", "E", "L"]
+BLUE_EXCEPTIONAL_VALUE_MOVABLE_PIECES = ["O", "P", "Q", "X"]
 
 EMPTY_VALUE = 0
 
