@@ -1,3 +1,5 @@
+import string
+
 # ranks and base values
 RED_PIECES = {"B": 0, "C": 1, "D": 2, "E": 3, "F": 4, "G": 5, "H": 6, "I": 7, "J": 8, "K": 9, "L": 10, "M": 11}
 BLUE_PIECES = {"N": 0, "O": 1, "P": 2, "Q": 3, "R": 4, "S": 5, "T": 6, "U": 7, "V": 8, "W": 9, "X": 10, "Y": 11}
@@ -28,8 +30,10 @@ MINER = 3
 MARSHAL = 10
 
 # board codes
-EMPTY = "A"
+EMPTY_TILE = "A"
 WATER = "_"
+
+NO_PIECES = [EMPTY_TILE, WATER]
 
 # RED
 R_B = "B"   # bomb
@@ -58,3 +62,62 @@ B_8 = "V"   # colonel
 B_9 = "W"   # general
 B_10 = "X"  # field marshal
 B_F = "Y"   # flag
+
+
+HIGHEST_RANK = 11
+MOVE_WIN = 0
+MOVE_DRAW = 1
+MOVE_LOSE = 2
+MOVE_EMPTY = 3
+
+
+def transform_piece_rank_to_comparable_value(piece_rank: str) -> int:  # comment updated
+    """
+    Movable piece rank values are given as c:l and o:x. This function transforms them to values of 2:11
+    :param piece_rank: Char rank of the piece (see ranks_encodings.py)
+    :return: the converted int height of the piece
+    """
+    rank_height = string.ascii_lowercase.index(piece_rank.lower())
+    if rank_height > HIGHEST_RANK:
+        rank_height -= HIGHEST_RANK
+    return rank_height
+
+
+def compare_source_to_target_rank(source: str, target: str) -> [str, str]:  # comment updated
+    """
+    determine the outcome of the player's move
+    :param source: the moving piece
+    :param target: the target piece
+    :return: the pieces that occupy the source tile and the target tile after the move and the move result
+    """
+    source_rank = transform_piece_rank_to_comparable_value(source)
+    target_rank = transform_piece_rank_to_comparable_value(target)
+    if source_rank > target_rank:
+        return EMPTY_TILE, source, MOVE_WIN
+    elif source_rank < target_rank:
+        return EMPTY_TILE, target, MOVE_LOSE
+    return source, target, MOVE_DRAW
+
+
+def determine_move_to_result(source: str, target: str) -> [str, str, int]:  # comment updated
+    """
+    determine the result of the player's move from the source to the target tile
+    :param source: the piece rank in the source tile
+    :param target: the piece rank in the target tile (if any)
+    :return: the updated ranks in the source and target tiles with the result
+    """
+    if target == EMPTY_TILE:
+        return EMPTY_TILE, source, MOVE_EMPTY
+    elif target in [B_F, R_F]:
+        return EMPTY_TILE, source, MOVE_WIN
+    elif source in [B_3, R_3] and target in [B_B, R_B]:
+        return EMPTY_TILE, source, MOVE_WIN
+    elif target in [B_B, R_B]:
+        return EMPTY_TILE, target, MOVE_LOSE
+    elif source in [B_1, R_1] and target in [B_10, R_10]:
+        return EMPTY_TILE, source, MOVE_WIN
+    else:
+        return compare_source_to_target_rank(source, target)
+
+
+

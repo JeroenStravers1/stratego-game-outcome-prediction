@@ -14,21 +14,11 @@ class FeatureExtractor:
     extracts all features that do not need information regarding previous turns to calculate. Mainly a value container.
     """
 
-    REVEALED = True
-    UNREVEALED = False
-    ONE = 1
-    _BASE_VALUE = 1.0
-    _BASE_REVEAL_PENALTY = 0.71
-    _REVEAL_PENALTY_INCREMENT = 0.02
-    _REVEAL_PENALTY_INTERCEPT_VALUE = 0.01
-    _REVEAL_PENALTY_DYNAMIC_MAX_VALUE = 0.28
-    _REVEAL_PENALTY_MODIFICATION_REQUIRED_MAXIMUM_PIECES = 14
-
     def __init__(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray,
                  feature_container: DataPointFeatureContainer, red_bombs: list, blue_bombs: list, red_flag: list,
                  blue_flag: list) -> None:
 
-        self.feature_container = feature_container
+        self.feats = feature_container
 
         self.board_state = board_state
         self.unmoved_pieces = unmoved_pieces
@@ -42,11 +32,11 @@ class FeatureExtractor:
         self.piece_values_red = np.zeros([board.ROWS, board.COLS])
         self.piece_values_blue = np.zeros([board.ROWS, board.COLS])
 
-        self.red_discovery_cost = self._BASE_REVEAL_PENALTY
-        self.red_base_value = self._BASE_VALUE
+        self.red_discovery_cost = val_calc.BASE_REVEAL_PENALTY
+        self.red_base_value = val_calc.BASE_VALUE
 
-        self.blue_discovery_cost = self._BASE_REVEAL_PENALTY
-        self.blue_base_value = self._BASE_VALUE
+        self.blue_discovery_cost = val_calc.BASE_REVEAL_PENALTY
+        self.blue_base_value = val_calc.BASE_VALUE
 
         self.red_pieces_amount = utils.EMPTY
         self.red_pieces_movable_amount = utils.EMPTY
@@ -54,6 +44,9 @@ class FeatureExtractor:
         self.blue_pieces_movable_amount = utils.EMPTY
 
     def extract_features(self) -> None:
+        """
+        coordinate the extraction of all non-long term features, stores them in the DataPointFeatureContainer
+        """
         red_pieces, blue_pieces = val_calc.get_amount_of_pieces_per_rank(self.board_state)
         red_unmoved_pieces, blue_unmoved_pieces = val_calc.get_amount_of_pieces_per_rank(self.unmoved_pieces)
         red_unrevealed_pieces, blue_unrevealed_pieces = val_calc.get_amount_of_pieces_per_rank(self.unrevealed_pieces)
@@ -65,16 +58,18 @@ class FeatureExtractor:
         self.blue_pieces_movable_amount = val_calc.determine_player_amount_of_moving_pieces(ranks.PLAYER_BLUE,
                                                                                             blue_pieces)
         self._assign_piece_values(red_pieces, blue_pieces, red_unrevealed_pieces, blue_unrevealed_pieces)
+        self._store_features_in_container(red_pieces, blue_pieces, red_unmoved_pieces, blue_unmoved_pieces,
+                                          red_unrevealed_pieces, blue_unrevealed_pieces)
 
     def _assign_piece_values(self, red_pieces: dict, blue_pieces: dict, red_unrevealed_pieces: dict,
                              blue_unrevealed_pieces: dict) -> None:
         """
-        assign base values to all pieces (inc revealed/pieces left modifiers)
-        :param red_pieces:
-        :param blue_pieces:
-        :param red_unrevealed_pieces:
-        :param blue_unrevealed_pieces:
-        :return:
+        assign values for each piece. First assign base value and revealed penalty, then handle pieces with specific
+        value rules
+        :param red_pieces: the number of pieces for each rank
+        :param blue_pieces: the number of pieces for each rank
+        :param red_unrevealed_pieces: the number of unrevealed pieces for each rank
+        :param blue_unrevealed_pieces: the number of unrevealed pieces for each rank
         """
         self._determine_reveal_and_base_penalties()
         red_rank_values = val_calc.determine_rank_values(blue_pieces)
@@ -99,6 +94,12 @@ class FeatureExtractor:
                                        red_unrevealed_pieces, blue_unrevealed_pieces)
 
     def _determine_applicable_base_value_modifier(self, current_piece_revealed: bool, player: int) -> float:
+        """
+        determine the correct modifier for the piece based on whether it has been revealed or nog
+        :param current_piece_revealed:
+        :param player: the current player
+        :return: the base modifier for the piece's value (piece value * modifier, so modifier 1 signifies unrevealed)
+        """
         if current_piece_revealed:
             return self.red_discovery_cost if player == ranks.PLAYER_RED else self.blue_discovery_cost
         else:
@@ -106,24 +107,16 @@ class FeatureExtractor:
 
     def _determine_reveal_and_base_penalties(self) -> None:
         """
-        account for the fact that the identity of pieces becomes clearer as fewer remain
+        account for the fact that the identity of pieces becomes clearer as fewer remain, by reducing both the base
+        value of pieces and the discovery penalty. This means that being discovered will become less punishing, while
+        the 'bonus' of being unrevealed becomes worth less.
         """
-        red_modifier = self._calculate_reveal_base_penalty_modifier(self.red_pieces_movable_amount)
-        blue_modifier = self._calculate_reveal_base_penalty_modifier(self.blue_pieces_movable_amount)
-        self.red_base_value = self._BASE_REVEAL_PENALTY + red_modifier
-        self.red_discovery_cost = self._BASE_VALUE - red_modifier
-        self.blue_base_value = self._BASE_REVEAL_PENALTY + blue_modifier
-        self.blue_discovery_cost = self._BASE_VALUE + blue_modifier
-
-    def _calculate_reveal_base_penalty_modifier(self, player_movable_pieces_sum: int) -> float:
-        """
-        1 + 28 - (pieces_left * 2) -> percentage cost of being revealed when player moving pieces <= 14
-        """
-        modifier = utils.EMPTY
-        if player_movable_pieces_sum <= self._REVEAL_PENALTY_MODIFICATION_REQUIRED_MAXIMUM_PIECES:
-            modifier = self._REVEAL_PENALTY_INTERCEPT_VALUE + self._REVEAL_PENALTY_DYNAMIC_MAX_VALUE \
-                - (player_movable_pieces_sum * self._REVEAL_PENALTY_INCREMENT)
-        return modifier
+        red_modifier = val_calc.calculate_reveal_base_penalty_modifier(self.red_pieces_movable_amount)
+        blue_modifier = val_calc.calculate_reveal_base_penalty_modifier(self.blue_pieces_movable_amount)
+        self.red_base_value = val_calc.BASE_REVEAL_PENALTY + red_modifier
+        self.red_discovery_cost = val_calc.BASE_VALUE - red_modifier
+        self.blue_base_value = val_calc.BASE_REVEAL_PENALTY + blue_modifier
+        self.blue_discovery_cost = val_calc.BASE_VALUE + blue_modifier
 
     def _store_piece_exceptional_value_locations(self, piece_type: str, piece_location: list,
                                                  exceptional_valued_movable_pieces: dict) -> None:
@@ -173,49 +166,157 @@ class FeatureExtractor:
         val_calc.handle_bomb_values(self.red_bombs, self.piece_values_blue, self.piece_values_red)
         val_calc.handle_bomb_values(self.blue_bombs, self.piece_values_red, self.piece_values_blue)
 
+    def _store_features_in_container(self, red_pieces: dict, blue_pieces: dict, red_unmoved_pieces: dict,
+                                     blue_unmoved_pieces: dict, red_unrevealed_pieces: dict,
+                                     blue_unrevealed_pieces: dict) -> None:
+        self._store_information_features(red_pieces, blue_pieces, red_unmoved_pieces, blue_unmoved_pieces,
+                                         red_unrevealed_pieces, blue_unrevealed_pieces)
 
 
 
+        self.feats.extracted_features[self.feats.SUM_PIECES_RED] = self.red_pieces_amount
+        self.feats.extracted_features[self.feats.SUM_PIECES_BLUE] = self.blue_pieces_amount
+        self.feats.extracted_features[self.feats.SUM_PIECES_RED_MOVABLE] = self.red_pieces_movable_amount
+        self.feats.extracted_features[self.feats.SUM_PIECES_BLUE_MOVABLE] = self.blue_pieces_movable_amount
+
+    def _store_information_features(self, red_pieces: dict, blue_pieces: dict, red_unmoved_pieces: dict,
+                                     blue_unmoved_pieces: dict, red_unrevealed_pieces: dict,
+                                     blue_unrevealed_pieces: dict) -> None:
+        """
+        Store all non-long term features that fall under the INFORMATION header
+        :param red_pieces:
+        :param blue_pieces:
+        :param red_unmoved_pieces:
+        :param blue_unmoved_pieces:
+        :param red_unrevealed_pieces:
+        :param blue_unrevealed_pieces:
+        """
+        self.feats.extracted_features[self.feats.UNREVEALED_BOMBS_RED] = val_calc.determine_unrevealed_bombs_amount(
+            self.red_bombs, self.unrevealed_pieces)
+        self.feats.extracted_features[self.feats.UNREVEALED_BOMBS_RED] = val_calc.determine_unrevealed_bombs_amount(
+            self.blue_bombs, self.unrevealed_pieces)
+
+        self.feats.extracted_features[self.feats.PERCENTAGE_UNREVEALED_RED] = \
+            val_calc.x_relative_to_y(sum(red_unrevealed_pieces.values()), board.STARTING_PIECES_AMOUNT)
+        self.feats.extracted_features[self.feats.PERCENTAGE_UNREVEALED_BLUE] = \
+            val_calc.x_relative_to_y(sum(blue_unrevealed_pieces.values()), board.STARTING_PIECES_AMOUNT)
+
+        self.feats.extracted_features[self.feats.PERCENTAGE_UNMOVED_RED] = \
+            val_calc.x_relative_to_y(sum(red_unmoved_pieces.values()), board.STARTING_PIECES_AMOUNT)
+        self.feats.extracted_features[self.feats.PERCENTAGE_UNMOVED_BLUE] = \
+            val_calc.x_relative_to_y(sum(blue_unmoved_pieces.values()), board.STARTING_PIECES_AMOUNT)
+
+        self.feats.extracted_features[self.feats.MOST_VALUABLE_REVEALED_PIECE_RED] = \
+            val_calc.get_value_of_highest_value_revealed_or_unrevealed_piece(self.piece_values_red,
+                                                                             self.unrevealed_pieces,
+                                                                             val_calc.REVEALED)
+        self.feats.extracted_features[self.feats.MOST_VALUABLE_REVEALED_PIECE_BLUE] = \
+            val_calc.get_value_of_highest_value_revealed_or_unrevealed_piece(self.piece_values_blue,
+                                                                             self.unrevealed_pieces,
+                                                                             val_calc.REVEALED)
+
+        self.feats.extracted_features[self.feats.MOST_VALUABLE_UNREVEALED_PIECE_RED] = \
+            val_calc.get_value_of_highest_value_revealed_or_unrevealed_piece(self.piece_values_red,
+                                                                             self.unrevealed_pieces,
+                                                                             val_calc.UNREVEALED)
+        self.feats.extracted_features[self.feats.MOST_VALUABLE_UNREVEALED_PIECE_BLUE] = \
+            val_calc.get_value_of_highest_value_revealed_or_unrevealed_piece(self.piece_values_blue,
+                                                                             self.unrevealed_pieces,
+                                                                             val_calc.UNREVEALED)
+
+        self.feats.extracted_features[self.feats.PERCENTAGE_VALUE_UNREVEALED_PIECES_RED] = \
+            val_calc.get_relative_value_of_unrevealed_pieces(self.piece_values_red, self.unrevealed_pieces)
+
+        self.feats.extracted_features[self.feats.PERCENTAGE_VALUE_UNREVEALED_PIECES_BLUE] = \
+            val_calc.get_relative_value_of_unrevealed_pieces(self.piece_values_blue, self.unrevealed_pieces)
+
+    def _store_relative_strength_features(self, red_pieces: dict, blue_pieces: dict, red_unmoved_pieces: dict,
+                                          blue_unmoved_pieces: dict, red_unrevealed_pieces: dict,
+                                          blue_unrevealed_pieces: dict):
+        """
+        Store all non-long term features that fall under the RELATIVE STRENGTH header
+        :param red_pieces:
+        :param blue_pieces:
+        :param red_unmoved_pieces:
+        :param blue_unmoved_pieces:
+        :param red_unrevealed_pieces:
+        :param blue_unrevealed_pieces:
+        """
+        red_mvp = val_calc.determine_n_highest_values_in_grid(val_calc.HIGHEST, self.piece_values_red)
+        blue_mvp = val_calc.determine_n_highest_values_in_grid(val_calc.HIGHEST, self.piece_values_blue)
+        relative_strength_red_mvp_versus_blue_mvp = val_calc.x_relative_to_y(red_mvp, blue_mvp)
+        self.feats.extracted_features[self.feats.PERCENTAGE_RED_VALUE_STRONGEST_PIECE_VS_BLUE_VALUE_STRONGEST_PIECE] = \
+            relative_strength_red_mvp_versus_blue_mvp
+
+        self.feats.extracted_features[self.feats.PERCENTAGE_SUM_RED_VALUE_SUM_BLUE_VALUE] = \
+            val_calc.x_relative_to_y(self.piece_values_red.sum(), self.piece_values_blue.sum())
+
+        red_pieces_values = val_calc.get_non_zero_values(self.piece_values_red)
+        self.feats.extracted_features[self.feats.STDEV_RED_VALUE_PIECES] = np.std(red_pieces_values)
+        blue_pieces_values = val_calc.get_non_zero_values(self.piece_values_blue)
+        self.feats.extracted_features[self.feats.STDEV_BLUE_VALUE_PIECES] = np.std(blue_pieces_values)
+
+        self.feats.extracted_features[self.feats.MEAN_RED_VALUE_PIECES] = np.mean(red_pieces_values)
+        self.feats.extracted_features[self.feats.MEAN_BLUE_VALUE_PIECES] = np.mean(blue_pieces_values)
+
+        sum_red_current_value = sum(red_pieces_values)
+        self.feats.extracted_features[self.feats.STARTING_VALUE_PERCENTAGE_RED] = \
+            val_calc.x_relative_to_y(sum_red_current_value, board.STARTING_PIECES_TOTAL_VALUE)
+        sum_blue_current_value = sum(blue_pieces_values)
+        self.feats.extracted_features[self.feats.STARTING_VALUE_PERCENTAGE_BLUE] = \
+            val_calc.x_relative_to_y(sum_blue_current_value, board.STARTING_PIECES_TOTAL_VALUE)
+
+        self.feats.extracted_features[self.feats.STARTING_NUMBER_PERCENTAGE_RED] = \
+            val_calc.x_relative_to_y(len(red_pieces_values), board.STARTING_PIECES_AMOUNT)
+        self.feats.extracted_features[self.feats.STARTING_NUMBER_PERCENTAGE_BLUE] = \
+            val_calc.x_relative_to_y(len(blue_pieces_values), board.STARTING_PIECES_AMOUNT)
+
+        red_three_highest_values = val_calc.determine_n_highest_values_in_grid(val_calc.THREE, self.piece_values_red)
+        self.feats.extracted_features[self.feats.SUM_THREE_MOST_VALUABLE_RED] = red_three_highest_values
+        blue_three_highest_values = val_calc.determine_n_highest_values_in_grid(val_calc.THREE, self.piece_values_blue)
+        self.feats.extracted_features[self.feats.SUM_THREE_MOST_VALUABLE_BLUE] = blue_three_highest_values
+
+        self.feats.extracted_features[self.feats.RED_THREE_MOST_VALUABLE_PERCENTAGE_BLUE_THREE_MOST_VALUABLE] = \
+            val_calc.x_relative_to_y(red_three_highest_values, blue_three_highest_values)
+
+    def _store_board_position_features(self, red_pieces: dict, blue_pieces: dict, red_unmoved_pieces: dict,
+                                       blue_unmoved_pieces: dict, red_unrevealed_pieces: dict,
+                                       blue_unrevealed_pieces: dict):
+        """
+        Store all non-long term features that fall under the BOARD POSITION header
+        :param red_pieces:
+        :param blue_pieces:
+        :param red_unmoved_pieces:
+        :param blue_unmoved_pieces:
+        :param red_unrevealed_pieces:
+        :param blue_unrevealed_pieces:
+        """
+        self.feats.extracted_features[self.feats.OWN_FLAG_SAFE_RED] = \
+            val_calc.determine_flag_protected(self.red_flag, self.board_state)
+        self.feats.extracted_features[self.feats.OWN_FLAG_SAFE_BLUE] = \
+            val_calc.determine_flag_protected(self.blue_flag, self.board_state)
 
 
-
-
-
-
-
-
-        # self.piece_values_red
-        # self.piece_values_blue
-
-        # FIXME hier doe je spies, dan bombs
+    def _store_board_chunk_features(self, red_pieces: dict, blue_pieces: dict, red_unmoved_pieces: dict,
+                                    blue_unmoved_pieces: dict, red_unrevealed_pieces: dict,
+                                    blue_unrevealed_pieces: dict):
+        """
+        Store all non-long term features that fall under the BOARD CHUNK header
+        :param red_pieces:
+        :param blue_pieces:
+        :param red_unmoved_pieces:
+        :param blue_unmoved_pieces:
+        :param red_unrevealed_pieces:
+        :param blue_unrevealed_pieces:
+        """
         pass
 
-
-def calculate_piece_values(board_state: list, unrevealed_pieces: list) -> list:
-    """
-    :param grid:
-    :param revealed_grid:
-    :return: grid with values on positions
-    """
-    red_pieces, blue_pieces = None#get_amount_of_pieces_per_rank(board_state)
-
-    ranks.ALL_PIECES # use to get index of rank of single piece, correct value with - START_AT_ZERO
-    # x recalculate rank base values for red and blue
-    # x assign base values
-    #   x |-correct for revealed pieces -29%
-    #   x |-correct for n_movable <= 14
-    #   |-triple miner value if opponent has bombs
-    #   |-triple scout value if opponent has unrevealed pieces
-    #   |-set bomb value to 50% highest opposing piece value
-    #   |-if marshal alive: set spy to 50% of its value
-    #   |-if spy alive: set marshal to 79% of value
-
-
-
 if __name__ == "__main__":
-    # bob = FeatureExtractor(np.zeros([board.ROWS, board.COLS]), np.zeros([board.ROWS, board.COLS]), np.zeros([board.ROWS, board.COLS]))
-    # henk = {"1":1, "2":2}
-    # print(sum(henk.values()))
-    henk = {1:[]}
-    henk[1].append(2)
-    print(henk[1])
+    y = np.array([[1,2], [3,4]])
+    b = [3,4,6,4,3,6,7,8,4,4]
+    # print(np.mean(b))
+    # print(y.sum())
+    # print(1/0)
+    a = False
+    b = True
+    c = False

@@ -6,18 +6,21 @@ from game_state_tracking import GameStateTracker
 game_state = GameStateTracker()
 
 
-def calculate_features(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray): # FIXME en MOVE! de move heb je hier ook nodig.
-    game_state.update_game_state(piece_positions, unmoved_pieces, unrevealed_pieces)
+
+def calculate_features(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray, \
+                       source: str, target: str):
+    game_state.update_game_state(piece_positions, unmoved_pieces, unrevealed_pieces, source, target)
     #game_state.calculate_features()
 
     print(game_state.current_turn)
     print(unmoved_pieces)
 
 
-def get_prediction(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray):
+def get_prediction(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray, source: str,
+                   target: str):
     """ return type is still unclear"""
 
-    calculate_features(piece_positions, unmoved_pieces, unrevealed_pieces)
+    calculate_features(piece_positions, unmoved_pieces, unrevealed_pieces, source, target)
 
 
 def process_outcome_for_display():

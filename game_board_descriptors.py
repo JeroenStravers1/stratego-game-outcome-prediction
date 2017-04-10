@@ -1,12 +1,20 @@
 COLS = 10
 ROWS = 10
+PLAYERS = 2
+STARTING_PIECES_AMOUNT = 40
+STARTING_PIECES_TOTAL_VALUE = 1451.53
 
 TOP_LEFT_COORDINATES = 0
 CHUNK_WIDTH = 1
 CHUNK_HEIGHT = 2
+BOTTOM = -1
+TOP = 1
 
 Y_POS = 0
 X_POS = 1
+
+CHAR_COLON = ":"
+COLON_VALUE = 10
 
 TWO_DEEP = 2
 TWO_WIDE = 2
@@ -34,7 +42,7 @@ CHUNKS_TOP_LEFT_DIMENSIONS = {
 }
 
 
-def generate_chunk_coordinates() -> dict:
+def generate_chunk_coordinates(coordinate_starting_positions: dict) -> dict:
     """
     generate the coordinates of all chunks in CHUNKS_TOP_LEFT_DIMENSIONS based on the top left square of the chunk
     (row, col) and its width.

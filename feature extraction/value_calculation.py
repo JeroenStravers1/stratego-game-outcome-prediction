@@ -9,11 +9,14 @@ import utils
 
 
 ONE = 1
+THREE = 3
 FIRST = 0
 EMPTY = 0
+HIGHEST = 1
 RED_HIGHEST_RANK_CODE = 12
 RANK_DIFFERENCE_FACTOR = 1.45
 LAST_ITEM = -1
+INCREMENT_ONE = 1
 
 BOMB_VALUE_MODIFIER = 0.5
 SPY_VALUE_MODIFIER = 0.5
@@ -23,12 +26,168 @@ MINER_VALUE_MODIFIER = 3.0
 MARSHAL_VALUE_MODIFIER = 0.8
 NO_MODIFIER = 1.0
 
+BASE_VALUE = 1.0
+BASE_REVEAL_PENALTY = 0.71
+REVEAL_PENALTY_INCREMENT = 0.02
+REVEAL_PENALTY_INTERCEPT_VALUE = 0.01
+REVEAL_PENALTY_DYNAMIC_MAX_VALUE = 0.28
+REVEAL_PENALTY_MODIFICATION_REQUIRED_MAXIMUM_PIECES = 14
 
-def interpret_move(source: str, target: str): #FIXME; handle move result interpretation here! duplicate from log_file_processing but modified to return what happens to the involved pieces and if it was towards the opponent
-    pass
+REVEALED = True
+UNREVEALED = False
+CHUNK = 'chunk'
 
 
-def handle_bomb_values(own_bombs: list, opposing_pieces: np.ndarray, own_piece_values: np.ndarray) -> None:
+def get_total_values_pieces_in_n_tile_radius_from_location(n: int, grid: np.ndarray, location: list) -> float:
+    """
+
+    :param n:
+    :param grid:
+    :param location:
+    :return:
+    """
+    top_left_y = location[board.Y_POS] + n # FIXME: TEST DEZE
+    top_left_x = location[board.X_POS] - n
+    top_left = [top_left_y, top_left_x]
+    diameter = n + n + ONE
+    chunk = {CHUNK: [top_left, diameter, diameter]}
+    tiles_in_radius = board.generate_chunk_coordinates(chunk) # nog niet klaar. Je pakt nu hopelijk de tiles in range, nu nog checken wat erin staat!
+    return 0.0
+
+
+def determine_piece_color(piece_encoding: str) -> int:
+    if piece_encoding not in ranks.NO_PIECES:
+        if piece_encoding in ranks.RED_PIECES_LIST:
+            return ranks.PLAYER_RED
+        return ranks.PLAYER_BLUE
+    print("empty tile")
+    return None
+
+
+def tile_is_safe(tile: list, player: int, all_pieces: np.ndarray) -> bool:
+    """
+    check if a tile is occupied by a friendly piece or is out of bounds
+    :param tile: location to check
+    :param player: the friendly player color
+    :param all_pieces: grid with all pieces
+    :return: True or False
+    """
+    try:
+        tile_piece_color = determine_piece_color(all_pieces[tile[board.Y_POS], tile[board.X_POS]])
+        if tile_piece_color == player:
+            return True
+        return False
+    except IndexError:
+        return True
+
+
+def determine_flag_protected(flag_position: list, all_pieces: np.ndarray) -> bool:
+    """
+    determine if a player's flag is surrounded (horizontally and vertically) by friendly pieces or board edges
+    :param flag_position: y, x coordinates
+    :param all_pieces: grid containing all pieces
+    :return: true or false
+    """
+    flag_y = flag_position[board.Y_POS]
+    flag_x = flag_position[board.X_POS]
+    player = determine_piece_color(all_pieces[flag_y, flag_x])
+    left_safe = tile_is_safe([flag_y, flag_x - ONE], player, all_pieces)
+    right_safe = tile_is_safe([flag_y, flag_x + ONE], player, all_pieces)
+    top_safe = tile_is_safe([flag_y + ONE, flag_x], player, all_pieces)
+    bottom_safe = tile_is_safe([flag_y - ONE, flag_x - ONE], player, all_pieces)
+    if left_safe and right_safe and top_safe and bottom_safe:
+        return True
+    return False
+
+
+def get_non_zero_values(piece_value_grid: np.ndarray) -> list:
+    values = list()
+    for row in piece_value_grid:
+        for value in row:
+            if value > EMPTY:
+                values.append(value)
+    return values
+
+
+def x_relative_to_y(x, y) -> float:
+    try:
+        return x / y
+    except ZeroDivisionError:
+        print(''.join(("X: ", str(x), " Y: ", str(y), " ZERODIVISIONERROR")))
+
+
+def get_relative_value_of_unrevealed_pieces(player_piece_values: np.ndarray, unrevealed_pieces: np.ndarray) -> float:
+    """
+    get the relative value of the player's unrevealed piece values compared to her total piece values
+    :param player_piece_values: array with the player's piece values
+    :param unrevealed_pieces: array with all unrevealed pieces ranks; revealed pieces are represented with 'A'
+    (EMPTY_TILE) status
+    :return: the unrevealed/total value percentage
+    """
+    sum_all_piece_values = EMPTY
+    sum_unrevealed_piece_values = EMPTY
+    for ind_row, row in enumerate(player_piece_values):
+        for ind_col, piece_value in enumerate(row):
+            sum_all_piece_values += piece_value
+            if unrevealed_pieces[ind_row, ind_col] != ranks.EMPTY_TILE:
+                sum_unrevealed_piece_values += piece_value
+    return x_relative_to_y(sum_unrevealed_piece_values / sum_all_piece_values)
+
+
+def get_value_of_highest_value_revealed_or_unrevealed_piece(player_piece_values: np.ndarray,
+                                                            unrevealed_pieces: np.ndarray, revealed: bool) -> float:
+    """
+    get the value of the highest value revealed piece for the player
+    :param player_piece_values: array with the player's piece values
+    :param unrevealed_pieces: array with all unrevealed pieces ranks; revealed pieces are represented with 'A'
+    (EMPTY_TILE) status
+    :param revealed: whether or not to find the highest revealed (True) or unrevealed (False) value.
+    :return: the player's highest value unrevealed piece's value
+    """
+    highest_value = [EMPTY] * n
+    for ind_row, row in enumerate(player_piece_values):
+        for ind_col, piece_value in enumerate(row):
+            if piece_value > highest_value:
+                if (unrevealed_pieces[ind_row, ind_col] == ranks.EMPTY_TILE) == revealed:
+                    highest_value = piece_value
+
+
+def determine_unrevealed_bombs_amount(player_bomb_locations: list, unrevealed_pieces: np.ndarray) -> int:
+    """
+    count the number of unrevealed bombs a player has
+    :param player_bomb_locations: [y,x] locations of a player's bombs
+    :param player_unrevealed_pieces: all unrevealed pieces a player has
+    :return: the amount of unrevealed bombs
+    """
+    unrevealed_bombas = EMPTY
+    for bomb in player_bomb_locations:
+        if unrevealed_pieces[bomb[board.Y_POS], bomb[board.X_POS]] != ranks.EMPTY_TILE:  # FIXME mooi moment voor een print: wat vindt ie hier dan?
+            unrevealed_bombas += INCREMENT_ONE
+    return unrevealed_bombas
+
+
+def calculate_reveal_base_penalty_modifier(player_movable_pieces_sum: int) -> float:
+    """
+    1 + 28 - (pieces_left * 2) -> percentage cost of being revealed when player moving pieces <= 14
+    """
+    modifier = utils.EMPTY
+    if player_movable_pieces_sum <= REVEAL_PENALTY_MODIFICATION_REQUIRED_MAXIMUM_PIECES:
+        modifier = REVEAL_PENALTY_INTERCEPT_VALUE + REVEAL_PENALTY_DYNAMIC_MAX_VALUE \
+                   - (player_movable_pieces_sum * REVEAL_PENALTY_INCREMENT)
+    return modifier
+
+
+def get_player_turn_number(cumulative_turns: int) -> int:
+    """"
+    :return player_turn_number: returns 1 for the first turn for either player, 2 for the second turn etcetera
+    """
+    player_turn_number = int((cumulative_turns + utils.START_AT_ONE_MODIFIER) / board.PLAYERS)
+    return player_turn_number
+
+
+# FIXME coverage below this line
+
+def handle_bomb_values(own_bombs: list, opposing_pieces: np.ndarray, own_piece_values: np.ndarray) -> None:  # covered
     """
     set 0.5 * the opponent's highest value piece as bomb value
     :param own_bombs: locations (y,x) of own bombs
@@ -108,14 +267,8 @@ def determine_n_highest_values_in_grid(n: int, values_grid: np.ndarray) -> list:
     return n_highest_values
 
 
-def determine_piece_color(piece_encoding: str) -> int:
-    if piece_encoding in ranks.RED_PIECES_LIST:
-        return ranks.PLAYER_RED
-    return ranks.PLAYER_BLUE
-
-
 def is_revealed(position: list, unrevealed_pieces: np.ndarray) -> bool:
-    if unrevealed_pieces[position[board.Y_POS], position[board.X_POS]] == ranks.EMPTY:
+    if unrevealed_pieces[position[board.Y_POS], position[board.X_POS]] == ranks.EMPTY_TILE:
         return True
     return False
 
@@ -149,7 +302,7 @@ def get_amount_of_pieces_per_rank(board_state: list) -> [dict, dict]:  # covered
     blue_player_pieces = initialize_player_pieces_dict(ranks.BLUE_PIECES_LIST)
     for row in board_state:
         for column_value in row:
-            if column_value not in [ranks.EMPTY, ranks.WATER]:
+            if column_value not in [ranks.EMPTY_TILE, ranks.WATER]:
                 assign_piece_to_red_or_blue_player_dict(column_value, red_player_pieces, blue_player_pieces)
     return red_player_pieces, blue_player_pieces
 
