@@ -34,12 +34,22 @@ def parse_location_encoding_to_row_column(location: str) -> [int, int]:
     by ':', char 'J' is replaced by char 'K'.
     :return: (list(int, int)) the row and column values
     """
-    raw_row = location[board.Y_POS]
+    raw_row = location[board.X_POS]
     if raw_row == board.CHAR_COLON:
         raw_row = board.COLON_VALUE
     row = int(raw_row) - START_AT_ZERO_MODIFIER
-    raw_column = location[board.X_POS].lower()
+    raw_column = location[board.Y_POS].lower()
     column = string.ascii_lowercase.index(raw_column)
     if column >= board.COLS:
         column = board.COLS - START_AT_ZERO_MODIFIER
     return [row, column]
+
+
+if __name__ == "__main__":
+    rank_height = string.ascii_lowercase.index("A".lower())
+    rank_height2 = string.ascii_lowercase.index("X".lower())
+    rank_height3 = string.ascii_lowercase.index("L".lower())
+
+    print(rank_height)
+    print(rank_height2)
+    print(rank_height3)

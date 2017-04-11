@@ -67,7 +67,8 @@ class LogProcessor:
         player_deployment, unmoved_pieces, unrevealed_pieces = self._interpret_starting_position(game_node) # moet een keer voor de beginopstellinge en aparte calc feature call gooien.
 
         # FIXME
-        first_turn_features = api.calculate_features(player_deployment, unmoved_pieces, unrevealed_pieces)
+        #first_turn_features = api.calculate_features(player_deployment, unmoved_pieces, unrevealed_pieces)
+        api.init_first_turn(player_deployment, unmoved_pieces, unrevealed_pieces)
 
         turn_effect_generator  = self._interpret_turns(game_node, player_deployment, unmoved_pieces, unrevealed_pieces)
         self._store_initial_and_extracted_features_in_csv(dict(), turn_effect_generator, "") #FIXME placeholder args for #0 and #2
@@ -113,6 +114,7 @@ class LogProcessor:
         """
         turn_nodes = game_node.findall(self._MOVE_NODE)
         for node in turn_nodes:
+            print("-----TURN: " + node.get("id"))
             source = node.get(self._SOURCE)
             target = node.get(self._TARGET)
             yield self._interpret_move(source, target, board_state, unmoved_pieces, unrevealed_pieces)

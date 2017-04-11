@@ -9,6 +9,7 @@ import utils
 
 
 ONE = 1
+TWO =  2
 THREE = 3
 FIRST = 0
 EMPTY = 0
@@ -38,21 +39,165 @@ UNREVEALED = False
 CHUNK = 'chunk'
 
 
-def get_total_values_pieces_in_n_tile_radius_from_location(n: int, grid: np.ndarray, location: list) -> float:
-    """
+def location_exists(location: list) -> bool:  # FIXME test
+    if location[board.Y_POS] >= board.ROWS or location[board.Y_POS] < board.FIRST_TILE:
+        return False
+    elif location[board.X_POS] >= board.ROWS or location[board.X_POS] < board.FIRST_TILE:
+        return False
+    return True
 
-    :param n:
-    :param grid:
-    :param location:
+
+def get_total_value_of_pieces_in_chunk(chunk_locations: list, grid_own_piece_values: np.ndarray) -> float:
+    """
+    sums the value of a player's pieces in a chunk
+    :param chunk_locations: list of [y,x] tiles in the current chunk
+    :param grid_own_piece_values: grid board representation containing the values of own pieces on tiles
     :return:
     """
-    top_left_y = location[board.Y_POS] + n # FIXME: TEST DEZE
-    top_left_x = location[board.X_POS] - n
-    top_left = [top_left_y, top_left_x]
+    sum_chunk_own_piece_values = EMPTY # FIXME test deze
+    for location in chunk_locations:
+        if location_exists(location):
+            sum_chunk_own_piece_values += grid_own_piece_values[location[board.Y_POS], location[board.X_POS]]
+    return sum_chunk_own_piece_values
+
+
+def get_adjacent_tile_locations(target_location: list) -> list: # FIXME test
+    """
+    get locations left, right, up, down from current tile. Does not take viability into account.
+    :param target_location: [y,x]
+    :return: adjacent locations
+    """
+    move_targets = list()
+    move_targets.append([target_location[board.Y_POS], target_location[board.X_POS] + board.LEFT])
+    move_targets.append([target_location[board.Y_POS], target_location[board.X_POS] + board.RIGHT])
+    move_targets.append([target_location[board.Y_POS] + board.UP, target_location[board.X_POS]])
+    move_targets.append([target_location[board.Y_POS] + board.DOWN, target_location[board.X_POS]])
+    return move_targets
+
+
+def tile_occupied_by_hostile(location: list, grid_opponent_piece_values: np.ndarray):  # FIXME test
+    if grid_opponent_piece_values[location[board.Y_POS], location[board.X_POS]] > ranks.EMPTY_VALUE:
+        return True
+    return False
+
+
+def tiles_contain_hostiles(locations: list, grid_opponent_piece_values: np.ndarray) -> bool:  # FIXME test
+    """
+    returns True if any of the supplied tile locations contain a hostile piece
+    :param locations: list of [y,x] locations
+    :param grid_opponent_piece_values: grid board representation containing the values of opposing pieces on tiles
+    :return: True or False
+    """
+    for location in locations:
+        if location_exists(location):
+            if tile_occupied_by_hostile(location, grid_opponent_piece_values):
+                return True
+    return False
+
+
+def sum_value_own_pieces_with_adjacent_hostiles(grid_own_piece_values: np.ndarray,  # FIXME test
+                                      grid_opponent_piece_values: np.ndarray) -> int:
+    """
+    get the sum of values of own pieces with adjacent hostile pieces
+    :param grid_own_piece_values: grid board representation containing the values of own pieces on tiles
+    :param grid_opponent_piece_values: grid board representation containing the values of opposing pieces on tiles
+    :return piece_with_adjacent_hostiles_values: sum of own piece values with adjacent opponent pieces
+    """
+    piece_with_adjacent_hostiles_values = EMPTY
+    for ind_row, row in enumerate(grid_own_piece_values):
+        for ind_col, tile_value in enumerate(row):
+            if tile_value > ranks.EMPTY_VALUE:
+                adjacent_tiles = get_adjacent_tile_locations([ind_row, ind_col])
+                if tiles_contain_hostiles(adjacent_tiles, grid_opponent_piece_values):
+                    piece_with_adjacent_hostiles_values += tile_value
+    return piece_with_adjacent_hostiles_values
+
+
+def sum_pieces_with_adjacent_hostiles(grid_own_piece_values: np.ndarray,  # FIXME test
+                                      grid_opponent_piece_values: np.ndarray) -> int:
+    """
+    :param grid_own_piece_values: grid board representation containing the values of own pieces on tiles
+    :param grid_opponent_piece_values: grid board representation containing the values of opposing pieces on tiles
+    :return: sum own pieces with adjacent hostiles
+    """
+    sum_own_pieces_with_adjacent_hostiles = EMPTY
+    for ind_row, row in enumerate(grid_own_piece_values):
+        for ind_col, tile_value in enumerate(row):
+            if tile_value > ranks.EMPTY_VALUE:
+                adjacent_tiles = get_adjacent_tile_locations([ind_row, ind_col])
+                if tiles_contain_hostiles(adjacent_tiles, grid_opponent_piece_values):
+                    sum_own_pieces_with_adjacent_hostiles += INCREMENT_ONE
+    return sum_own_pieces_with_adjacent_hostiles
+
+
+def count_valid_move_targets(raw_move_targets: list, all_pieces: np.ndarray) -> int: # FIXME : test
+    """
+    determine which locations in a list are valid movement targets
+    :param raw_move_targets: list of locations to consider
+    :param all_pieces: grid representation of all pieces on the game board
+    :return: sum of valid targets in provided targets
+    """
+    sum_valid_moves = EMPTY
+    for target in raw_move_targets:
+        if location_exists(target):
+            if all_pieces[target[board.Y_POS], target[board.X_POS]] == ranks.EMPTY_TILE:
+                sum_valid_moves += INCREMENT_ONE
+    return sum_valid_moves
+
+
+def get_possible_moves_amount_by_comparing_own_pieces_to_all_pieces(grid_own_piece_values: np.ndarray,
+                                                                    all_pieces: np.ndarray) -> int:  # FIXME test
+    """
+    get the total number of possible moves for a player
+    :param grid_own_piece_values: grid board representation containing only own piece values
+    :param all_pieces: grid board representation containing all piece ranks
+    :return: sum of possible moves
+    """
+    sum_possible_moves = EMPTY
+    for ind_row, row in enumerate(grid_own_piece_values):
+        for ind_col, tile_value in enumerate(row):
+            if tile_value > ranks.EMPTY_VALUE:
+                raw_move_targets = get_adjacent_tile_locations([ind_row, ind_col])
+                sum_possible_moves += count_valid_move_targets(raw_move_targets, all_pieces)
+    return sum_possible_moves
+
+
+def get_locations_n_tiles_from_centre(n: int, radius_centre: list) -> dict:
+    """
+    get [y,x] representations of tiles in radius of n tiles from starting point
+    :param n: number of tiles in radius (excluding centre)
+    :param radius_centre: location [y,x] of the centre of the circle
+    :return: dict containing chunkname: list of locations in chunk
+    """
+    top_left_y = radius_centre[board.Y_POS] + n  # FIXME: TEST DEZE
+    top_left_x = radius_centre[board.X_POS] - n
+    top_left_location = [top_left_y, top_left_x]
     diameter = n + n + ONE
-    chunk = {CHUNK: [top_left, diameter, diameter]}
-    tiles_in_radius = board.generate_chunk_coordinates(chunk) # nog niet klaar. Je pakt nu hopelijk de tiles in range, nu nog checken wat erin staat!
-    return 0.0
+    chunk = {CHUNK: [top_left_location, diameter, diameter]}
+    return board.generate_chunk_coordinates(chunk)
+
+
+def get_total_values_pieces_in_n_tile_radius_from_location_in_grid(n: int, radius_centre: list,
+                                                                   grid_own_piece_values: np.ndarray) -> float:
+    """
+    :param n: tile radius (excluding the centre tile)
+    :param grid_own_piece_values: the grid to find the values in
+    :param radius_centre: the location of the centre of the circle
+    :return: the sum of all values found in the tiles in the circle
+    """
+    tiles_in_radius = get_locations_n_tiles_from_centre(n, radius_centre)
+    sum_values_pieces_in_radius = EMPTY # FIXME test deze
+    for chunk in tiles_in_radius:
+        for location in tiles_in_radius[chunk]:
+            if location_exists(location):
+                sum_values_pieces_in_radius += grid_own_piece_values[location[board.Y_POS], location[board.X_POS]]
+    return sum_values_pieces_in_radius
+
+
+def get_other_player(current_player):
+    if current_player == ranks.PLAYER_RED:
+        return ranks.PLAYER_BLUE
+    return ranks.PLAYER_RED
 
 
 def determine_piece_color(piece_encoding: str) -> int:
@@ -66,19 +211,18 @@ def determine_piece_color(piece_encoding: str) -> int:
 
 def tile_is_safe(tile: list, player: int, all_pieces: np.ndarray) -> bool:
     """
-    check if a tile is occupied by a friendly piece or is out of bounds
+    check if a tile is occupied by a friendly piece, is out of bounds or is water
     :param tile: location to check
     :param player: the friendly player color
     :param all_pieces: grid with all pieces
     :return: True or False
     """
-    try:
+    if location_exists(tile):
         tile_piece_color = determine_piece_color(all_pieces[tile[board.Y_POS], tile[board.X_POS]])
-        if tile_piece_color == player:
+        if tile_piece_color == player or tile_piece_color == ranks.WATER:
             return True
         return False
-    except IndexError:
-        return True
+    return True
 
 
 def determine_flag_protected(flag_position: list, all_pieces: np.ndarray) -> bool:
@@ -88,6 +232,7 @@ def determine_flag_protected(flag_position: list, all_pieces: np.ndarray) -> boo
     :param all_pieces: grid containing all pieces
     :return: true or false
     """
+    print(flag_position)
     flag_y = flag_position[board.Y_POS]
     flag_x = flag_position[board.X_POS]
     player = determine_piece_color(all_pieces[flag_y, flag_x])
@@ -100,9 +245,9 @@ def determine_flag_protected(flag_position: list, all_pieces: np.ndarray) -> boo
     return False
 
 
-def get_non_zero_values(piece_value_grid: np.ndarray) -> list:
+def get_non_zero_values(grid_own_piece_values: np.ndarray) -> list:
     values = list()
-    for row in piece_value_grid:
+    for row in grid_own_piece_values:
         for value in row:
             if value > EMPTY:
                 values.append(value)
@@ -116,36 +261,36 @@ def x_relative_to_y(x, y) -> float:
         print(''.join(("X: ", str(x), " Y: ", str(y), " ZERODIVISIONERROR")))
 
 
-def get_relative_value_of_unrevealed_pieces(player_piece_values: np.ndarray, unrevealed_pieces: np.ndarray) -> float:
+def get_relative_value_of_unrevealed_pieces(grid_own_piece_values: np.ndarray, unrevealed_pieces: np.ndarray) -> float:
     """
     get the relative value of the player's unrevealed piece values compared to her total piece values
-    :param player_piece_values: array with the player's piece values
+    :param grid_own_piece_values: array with the player's piece values
     :param unrevealed_pieces: array with all unrevealed pieces ranks; revealed pieces are represented with 'A'
     (EMPTY_TILE) status
     :return: the unrevealed/total value percentage
     """
     sum_all_piece_values = EMPTY
     sum_unrevealed_piece_values = EMPTY
-    for ind_row, row in enumerate(player_piece_values):
+    for ind_row, row in enumerate(grid_own_piece_values):
         for ind_col, piece_value in enumerate(row):
             sum_all_piece_values += piece_value
             if unrevealed_pieces[ind_row, ind_col] != ranks.EMPTY_TILE:
                 sum_unrevealed_piece_values += piece_value
-    return x_relative_to_y(sum_unrevealed_piece_values / sum_all_piece_values)
+    return x_relative_to_y(sum_unrevealed_piece_values, sum_all_piece_values)
 
 
-def get_value_of_highest_value_revealed_or_unrevealed_piece(player_piece_values: np.ndarray,
+def get_value_of_highest_value_revealed_or_unrevealed_piece(grid_own_piece_values: np.ndarray,
                                                             unrevealed_pieces: np.ndarray, revealed: bool) -> float:
     """
     get the value of the highest value revealed piece for the player
-    :param player_piece_values: array with the player's piece values
+    :param grid_own_piece_values: array with the player's piece values
     :param unrevealed_pieces: array with all unrevealed pieces ranks; revealed pieces are represented with 'A'
     (EMPTY_TILE) status
     :param revealed: whether or not to find the highest revealed (True) or unrevealed (False) value.
     :return: the player's highest value unrevealed piece's value
     """
-    highest_value = [EMPTY] * n
-    for ind_row, row in enumerate(player_piece_values):
+    highest_value = [EMPTY]
+    for ind_row, row in enumerate(grid_own_piece_values):
         for ind_col, piece_value in enumerate(row):
             if piece_value > highest_value:
                 if (unrevealed_pieces[ind_row, ind_col] == ranks.EMPTY_TILE) == revealed:
@@ -156,7 +301,7 @@ def determine_unrevealed_bombs_amount(player_bomb_locations: list, unrevealed_pi
     """
     count the number of unrevealed bombs a player has
     :param player_bomb_locations: [y,x] locations of a player's bombs
-    :param player_unrevealed_pieces: all unrevealed pieces a player has
+    :param unrevealed_pieces: all unrevealed pieces a player has
     :return: the amount of unrevealed bombs
     """
     unrevealed_bombas = EMPTY
@@ -187,44 +332,44 @@ def get_player_turn_number(cumulative_turns: int) -> int:
 
 # FIXME coverage below this line
 
-def handle_bomb_values(own_bombs: list, opposing_pieces: np.ndarray, own_piece_values: np.ndarray) -> None:  # covered
+def handle_bomb_values(own_bombs: list, opposing_pieces: np.ndarray, grid_own_piece_values: np.ndarray) -> None:  # covered
     """
     set 0.5 * the opponent's highest value piece as bomb value
     :param own_bombs: locations (y,x) of own bombs
     :param opposing_pieces: dict containing number of opponent pieces per rank
-    :param own_piece_values: 2d array with the representation in values of own pieces
+    :param grid_own_piece_values: 2d array with the representation in values of own pieces
     """
     if not own_bombs:
         return
     most_valuable_opposing_piece = determine_n_highest_values_in_grid(ONE, opposing_pieces)
     bomb_value = most_valuable_opposing_piece[FIRST] * BOMB_VALUE_MODIFIER
     for bomb in own_bombs:
-        own_piece_values[bomb[board.Y_POS], bomb[board.X_POS]] = bomb_value
+        grid_own_piece_values[bomb[board.Y_POS], bomb[board.X_POS]] = bomb_value
 
 
 def handle_scout_values(exceptional_valued_movable_pieces: dict, scout: str, opposing_unrevealed_pieces: dict,
-                        own_piece_values: np.ndarray) -> None:  # covered
+                        grid_own_piece_values: np.ndarray) -> None:  # covered
     """
     multiply the value of scouts by 2.43 if the opponent has more than 1 unrevealed piece left
     :param exceptional_valued_movable_pieces: dict with locations of pieces with special value assignment rules
     :param scout: string representation of the scout rank
     :param opposing_unrevealed_pieces: dict containing number of opponent unrevealed pieces per rank
-    :param own_piece_values: 2d array with the representation in values of own pieces
+    :param grid_own_piece_values: 2d array with the representation in values of own pieces
     """
     if scout in exceptional_valued_movable_pieces:
         if sum(opposing_unrevealed_pieces.values()) > SCOUT_MODIFIER_THRESHOLD:
             for scout_location in exceptional_valued_movable_pieces[scout]:
-                own_piece_values[scout_location[board.Y_POS], scout_location[board.X_POS]] *= SCOUT_VALUE_MODIFIER
+                grid_own_piece_values[scout_location[board.Y_POS], scout_location[board.X_POS]] *= SCOUT_VALUE_MODIFIER
 
 
 def handle_spy_values(exceptional_valued_movable_pieces: dict, spy: str, opposing_marshal: str,  # covered
-                      own_piece_values: np.ndarray, opponent_piece_values: np.ndarray) -> None:
+                      grid_own_piece_values: np.ndarray, opponent_piece_values: np.ndarray) -> None:
     """
     spies have a value equal to 50% of the opponent's marshal's total value, if it still lives
     :param exceptional_valued_movable_pieces: dict with locations of pieces with special value assignment rules
     :param spy: str representation of current player's spy rank
     :param opposing_marshal: str representation of opposing marshal rank
-    :param own_piece_values: 2d array with the representation in values of own pieces
+    :param grid_own_piece_values: 2d array with the representation in values of own pieces
     :param opponent_piece_values: 2d array with the representation in values of opponent pieces
     :return:
     """
@@ -237,7 +382,7 @@ def handle_spy_values(exceptional_valued_movable_pieces: dict, spy: str, opposin
             opposing_marshal_value = opponent_piece_values[marshal_location[board.Y_POS],
                                                            marshal_location[board.X_POS]]
             spy_value = opposing_marshal_value * SPY_VALUE_MODIFIER
-            own_piece_values[spy_location[board.Y_POS], spy_location[board.X_POS]] = spy_value
+            grid_own_piece_values[spy_location[board.Y_POS], spy_location[board.X_POS]] = spy_value
 
 
 def get_exceptional_piece_type_value_modifier(piece_type: str, opposing_pieces: dict) -> float:  # covered

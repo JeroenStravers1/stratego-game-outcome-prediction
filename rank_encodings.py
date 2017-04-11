@@ -20,6 +20,8 @@ BLUE_MOVABLE_PIECES = ["O", "P", "Q", "R", "S", "T", "U", "V", "W", "X"]
 RED_EXCEPTIONAL_VALUE_MOVABLE_PIECES = ["C", "D", "E", "L"]
 BLUE_EXCEPTIONAL_VALUE_MOVABLE_PIECES = ["O", "P", "Q", "X"]
 
+ALL_STATIC_PIECES = ["B", "M", "N", "Y"]
+
 EMPTY_VALUE = 0
 
 # special value indices
@@ -64,11 +66,13 @@ B_10 = "X"  # field marshal
 B_F = "Y"   # flag
 
 
-HIGHEST_RANK = 11
+HIGHEST_RANK = 12
 MOVE_WIN = 0
 MOVE_DRAW = 1
 MOVE_LOSE = 2
 MOVE_EMPTY = 3
+
+REMOVE_EMPTY_AND_WATER = 2
 
 
 def transform_piece_rank_to_comparable_value(piece_rank: str) -> int:  # comment updated
@@ -78,6 +82,7 @@ def transform_piece_rank_to_comparable_value(piece_rank: str) -> int:  # comment
     :return: the converted int height of the piece
     """
     rank_height = string.ascii_lowercase.index(piece_rank.lower())
+    rank_height -= REMOVE_EMPTY_AND_WATER
     if rank_height > HIGHEST_RANK:
         rank_height -= HIGHEST_RANK
     return rank_height
@@ -96,7 +101,7 @@ def compare_source_to_target_rank(source: str, target: str) -> [str, str]:  # co
         return EMPTY_TILE, source, MOVE_WIN
     elif source_rank < target_rank:
         return EMPTY_TILE, target, MOVE_LOSE
-    return source, target, MOVE_DRAW
+    return EMPTY_TILE, EMPTY_TILE, MOVE_DRAW
 
 
 def determine_move_to_result(source: str, target: str) -> [str, str, int]:  # comment updated
