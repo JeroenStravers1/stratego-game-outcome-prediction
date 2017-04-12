@@ -6,6 +6,10 @@ BLUE_PIECES = {"N": 0, "O": 1, "P": 2, "Q": 3, "R": 4, "S": 5, "T": 6, "U": 7, "
 ALL_PIECES = {"B": 0, "C": 1, "D": 2, "E": 3, "F": 4, "G": 5, "H": 6, "I": 7, "J": 8, "K": 9, "L": 10, "M": 11,
               "N": 0, "O": 1, "P": 2, "Q": 3, "R": 4, "S": 5, "T": 6, "U": 7, "V": 8, "W": 9, "X": 10, "Y": 11}
 
+INITIAL_VALUES = [40.23466267, 40.23466267, 12.508425, 22.391625, 10.82261875, 15.69279719, 22.75455592, 32.99410609,
+                  47.84145383, 69.37010805, 80.46932533, 0]
+
+BOMBS = ["B", "N"]
 
 PLAYER_RED = 0
 PLAYER_BLUE = 1
@@ -123,6 +127,3 @@ def determine_move_to_result(source: str, target: str) -> [str, str, int]:  # co
         return EMPTY_TILE, source, MOVE_WIN
     else:
         return compare_source_to_target_rank(source, target)
-
-
-

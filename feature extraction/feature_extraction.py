@@ -57,8 +57,8 @@ class FeatureExtractor:
         self.blue_pieces_movable_amount = val_calc.determine_player_amount_of_moving_pieces(ranks.PLAYER_BLUE,
                                                                                             blue_pieces)
         self._assign_piece_values(red_pieces, blue_pieces, red_unrevealed_pieces, blue_unrevealed_pieces)
-        self._store_features_in_container(red_unmoved_pieces, blue_unmoved_pieces, red_unrevealed_pieces,
-                                          blue_unrevealed_pieces)
+        self._store_features_in_container(red_unmoved_pieces, blue_unmoved_pieces, red_pieces,
+                                          blue_pieces)
 
     def _assign_piece_values(self, red_pieces: dict, blue_pieces: dict, red_unrevealed_pieces: dict,
                              blue_unrevealed_pieces: dict) -> None:
@@ -90,7 +90,7 @@ class FeatureExtractor:
                             self.piece_values_red[ind_row, ind_col] = piece_value
                         else:
                             piece_value = blue_rank_values[current_piece_value_index] * piece_value_modifier
-                            self.piece_values_red[ind_row, ind_col] = piece_value
+                            self.piece_values_blue[ind_row, ind_col] = piece_value
         self._apply_exceptional_values(exceptional_valued_movable_pieces, red_pieces, blue_pieces,
                                        red_unrevealed_pieces, blue_unrevealed_pieces)
 
@@ -168,26 +168,34 @@ class FeatureExtractor:
         val_calc.handle_bomb_values(self.blue_bombs, self.piece_values_red, self.piece_values_blue)
 
     def _store_features_in_container(self, red_unmoved_pieces: dict, blue_unmoved_pieces: dict,
-                                     red_unrevealed_pieces: dict, blue_unrevealed_pieces: dict) -> None:
+                                     red_pieces_amount_per_rank: dict, blue_pieces_amount_per_rank: dict) -> None:
+        """
+        coordinate storage of all turn-based features in container object
+        :param red_unmoved_pieces:
+        :param blue_unmoved_pieces:
+        :param red_pieces_amount_per_rank:
+        :param blue_pieces_amount_per_rank:
+        """
         self._store_information_features(red_unmoved_pieces, blue_unmoved_pieces,
-                                         red_unrevealed_pieces, blue_unrevealed_pieces)
+                                         red_pieces_amount_per_rank, blue_pieces_amount_per_rank)
         self.feats.extracted_features[self.feats.SUM_PIECES_RED] = self.red_pieces_amount
         self.feats.extracted_features[self.feats.SUM_PIECES_BLUE] = self.blue_pieces_amount
         self.feats.extracted_features[self.feats.SUM_PIECES_RED_MOVABLE] = self.red_pieces_movable_amount
         self.feats.extracted_features[self.feats.SUM_PIECES_BLUE_MOVABLE] = self.blue_pieces_movable_amount
         self._store_relative_strength_features()
         self._store_board_position_features()
-        self._store_board_chunk_features()  # runs, but test values!
+        self._store_board_chunk_features()
 
-
-    def _store_information_features(self, red_unmoved_pieces: dict, blue_unmoved_pieces: dict,
-                                    red_unrevealed_pieces: dict, blue_unrevealed_pieces: dict) -> None:
+    def _store_information_features(self, red_unmoved_pieces: np.ndarray, blue_unmoved_pieces: np.ndarray,
+                                    red_pieces_amount_per_rank: dict, blue_pieces_amount_per_rank: dict) -> None:
         """
         Store all non-long term features that fall under the INFORMATION header
         :param red_unmoved_pieces:
         :param blue_unmoved_pieces:
         :param red_unrevealed_pieces:
         :param blue_unrevealed_pieces:
+        :param red_pieces_amount_per_rank:
+        :param blue_pieces_amount_per_rank:
         """
         self.feats.extracted_features[self.feats.UNREVEALED_BOMBS_RED] = val_calc.determine_unrevealed_bombs_amount(
             self.red_bombs, self.unrevealed_pieces)
@@ -195,9 +203,9 @@ class FeatureExtractor:
             self.blue_bombs, self.unrevealed_pieces)
 
         self.feats.extracted_features[self.feats.PERCENTAGE_UNREVEALED_RED] = \
-            val_calc.x_relative_to_y(sum(red_unrevealed_pieces.values()), board.STARTING_PIECES_AMOUNT)
+            val_calc.x_relative_to_y(sum(red_pieces_amount_per_rank.values()), board.STARTING_PIECES_AMOUNT)
         self.feats.extracted_features[self.feats.PERCENTAGE_UNREVEALED_BLUE] = \
-            val_calc.x_relative_to_y(sum(blue_unrevealed_pieces.values()), board.STARTING_PIECES_AMOUNT)
+            val_calc.x_relative_to_y(sum(blue_pieces_amount_per_rank.values()), board.STARTING_PIECES_AMOUNT)
 
         self.feats.extracted_features[self.feats.PERCENTAGE_UNMOVED_RED] = \
             val_calc.x_relative_to_y(sum(red_unmoved_pieces.values()), board.STARTING_PIECES_AMOUNT)
@@ -257,17 +265,21 @@ class FeatureExtractor:
             val_calc.x_relative_to_y(sum_blue_current_value, board.STARTING_PIECES_TOTAL_VALUE)
 
         self.feats.extracted_features[self.feats.STARTING_NUMBER_PERCENTAGE_RED] = \
-            val_calc.x_relative_to_y(len(red_pieces_values), board.STARTING_PIECES_AMOUNT)
+            val_calc.x_relative_to_y(self.feats.extracted_features[self.feats.SUM_PIECES_RED],
+                                     board.STARTING_PIECES_AMOUNT)
         self.feats.extracted_features[self.feats.STARTING_NUMBER_PERCENTAGE_BLUE] = \
-            val_calc.x_relative_to_y(len(blue_pieces_values), board.STARTING_PIECES_AMOUNT)
+            val_calc.x_relative_to_y(self.feats.extracted_features[self.feats.SUM_PIECES_BLUE],
+                                     board.STARTING_PIECES_AMOUNT)
 
-        red_three_highest_values = val_calc.determine_n_highest_values_in_grid(val_calc.THREE, self.piece_values_red)
-        self.feats.extracted_features[self.feats.SUM_THREE_MOST_VALUABLE_RED] = red_three_highest_values
-        blue_three_highest_values = val_calc.determine_n_highest_values_in_grid(val_calc.THREE, self.piece_values_blue)
-        self.feats.extracted_features[self.feats.SUM_THREE_MOST_VALUABLE_BLUE] = blue_three_highest_values
+        sum_red_three_highest_values = \
+            sum(val_calc.determine_n_highest_values_in_grid(val_calc.THREE, self.piece_values_red))
+        self.feats.extracted_features[self.feats.SUM_THREE_MOST_VALUABLE_RED] = sum_red_three_highest_values
+        sum_blue_three_highest_values = \
+            sum(val_calc.determine_n_highest_values_in_grid(val_calc.THREE, self.piece_values_blue))
+        self.feats.extracted_features[self.feats.SUM_THREE_MOST_VALUABLE_BLUE] = sum_blue_three_highest_values
 
         self.feats.extracted_features[self.feats.RED_THREE_MOST_VALUABLE_PERCENTAGE_BLUE_THREE_MOST_VALUABLE] = \
-            val_calc.x_relative_to_y(sum(red_three_highest_values), sum(blue_three_highest_values))
+            val_calc.x_relative_to_y(sum_red_three_highest_values, sum_blue_three_highest_values)
 
     def _store_board_position_features(self) -> None:
         """
@@ -278,26 +290,12 @@ class FeatureExtractor:
         self.feats.extracted_features[self.feats.OWN_FLAG_SAFE_BLUE] = \
             val_calc.determine_flag_protected(self.blue_flag, self.board_state)
 
-        self.feats.extracted_features[self.feats.SUM_VALUE_FRIENDLIES_ONE_TILE_RADIUS_OWN_FLAG_RED] = \
-            val_calc.get_total_values_pieces_in_n_tile_radius_from_location_in_grid(val_calc.ONE, self.red_flag,
-                                                                                    self.piece_values_red)
-        self.feats.extracted_features[self.feats.SUM_VALUE_FRIENDLIES_ONE_TILE_RADIUS_OWN_FLAG_BLUE] = \
-            val_calc.get_total_values_pieces_in_n_tile_radius_from_location_in_grid(val_calc.ONE, self.blue_flag,
-                                                                                    self.piece_values_blue)
-
         self.feats.extracted_features[self.feats.SUM_VALUE_FRIENDLIES_TWO_TILE_RADIUS_OWN_FLAG_RED] = \
             val_calc.get_total_values_pieces_in_n_tile_radius_from_location_in_grid(val_calc.TWO, self.red_flag,
                                                                                     self.piece_values_red)
         self.feats.extracted_features[self.feats.SUM_VALUE_FRIENDLIES_TWO_TILE_RADIUS_OWN_FLAG_BLUE] = \
             val_calc.get_total_values_pieces_in_n_tile_radius_from_location_in_grid(val_calc.TWO, self.blue_flag,
                                                                                     self.piece_values_blue)
-
-        self.feats.extracted_features[self.feats.SUM_VALUE_HOSTILES_ONE_TILE_RADIUS_OWN_FLAG_RED] = \
-            val_calc.get_total_values_pieces_in_n_tile_radius_from_location_in_grid(val_calc.ONE, self.red_flag,
-                                                                                    self.piece_values_blue)
-        self.feats.extracted_features[self.feats.SUM_VALUE_HOSTILES_ONE_TILE_RADIUS_OWN_FLAG_BLUE] = \
-            val_calc.get_total_values_pieces_in_n_tile_radius_from_location_in_grid(val_calc.ONE, self.blue_flag,
-                                                                                    self.piece_values_red)
 
         self.feats.extracted_features[self.feats.SUM_VALUE_HOSTILES_TWO_TILE_RADIUS_OWN_FLAG_RED] = \
             val_calc.get_total_values_pieces_in_n_tile_radius_from_location_in_grid(val_calc.TWO, self.red_flag,

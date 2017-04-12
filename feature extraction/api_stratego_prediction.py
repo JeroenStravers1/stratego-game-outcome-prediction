@@ -9,7 +9,7 @@ game_state = GameStateTracker()
 
 def init_first_turn(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray) -> None:
     RED_START_BOTTOM = 1
-    game_state.init_game_board(piece_positions, unmoved_pieces, unrevealed_pieces,)
+    game_state.init_game_board(piece_positions, unmoved_pieces, unrevealed_pieces)
 
 def calculate_features(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray, \
                        source: str, target: str) -> None:  # FIXME return type

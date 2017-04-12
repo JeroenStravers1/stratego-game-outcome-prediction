@@ -148,7 +148,7 @@ def count_valid_move_targets(raw_move_targets: list, all_pieces: np.ndarray) -> 
 def get_possible_moves_amount_by_comparing_own_pieces_to_all_pieces(grid_own_piece_values: np.ndarray,
                                                                     all_pieces: np.ndarray) -> int:  # FIXME test
     """
-    get the total number of possible moves for a player
+    get the total number of possible moves for a player (discounting flags and bombs as they cannot move)
     :param grid_own_piece_values: grid board representation containing only own piece values
     :param all_pieces: grid board representation containing all piece ranks
     :return: sum of possible moves
@@ -156,7 +156,7 @@ def get_possible_moves_amount_by_comparing_own_pieces_to_all_pieces(grid_own_pie
     sum_possible_moves = EMPTY
     for ind_row, row in enumerate(grid_own_piece_values):
         for ind_col, tile_value in enumerate(row):
-            if tile_value > ranks.EMPTY_VALUE:
+            if tile_value > ranks.EMPTY_VALUE and all_pieces[ind_row, ind_col] not in ranks.BOMBS:
                 raw_move_targets = get_adjacent_tile_locations([ind_row, ind_col])
                 sum_possible_moves += count_valid_move_targets(raw_move_targets, all_pieces)
     return sum_possible_moves
@@ -232,7 +232,6 @@ def determine_flag_protected(flag_position: list, all_pieces: np.ndarray) -> boo
     :param all_pieces: grid containing all pieces
     :return: true or false
     """
-    print(flag_position)
     flag_y = flag_position[board.Y_POS]
     flag_x = flag_position[board.X_POS]
     player = determine_piece_color(all_pieces[flag_y, flag_x])
@@ -280,21 +279,27 @@ def get_relative_value_of_unrevealed_pieces(grid_own_piece_values: np.ndarray, u
 
 
 def get_value_of_highest_value_revealed_or_unrevealed_piece(grid_own_piece_values: np.ndarray,
-                                                            unrevealed_pieces: np.ndarray, revealed: bool) -> float:
+                                                            unrevealed_pieces: np.ndarray,
+                                                            use_revealed_pieces: bool) -> float:
     """
-    get the value of the highest value revealed piece for the player
+    get the value of the highest value revealed or unrevealed piece for the player
     :param grid_own_piece_values: array with the player's piece values
     :param unrevealed_pieces: array with all unrevealed pieces ranks; revealed pieces are represented with 'A'
     (EMPTY_TILE) status
-    :param revealed: whether or not to find the highest revealed (True) or unrevealed (False) value.
+    :param use_both_revealed_and_unrevealed_pieces:
     :return: the player's highest value unrevealed piece's value
     """
-    highest_value = [EMPTY]
+    highest_value = EMPTY
     for ind_row, row in enumerate(grid_own_piece_values):
         for ind_col, piece_value in enumerate(row):
             if piece_value > highest_value:
-                if (unrevealed_pieces[ind_row, ind_col] == ranks.EMPTY_TILE) == revealed:
-                    highest_value = piece_value
+                if not use_revealed_pieces:
+                    if unrevealed_pieces[ind_row, ind_col] != ranks.EMPTY_TILE:
+                        highest_value = piece_value
+                else:
+                    if unrevealed_pieces[ind_row, ind_col] == ranks.EMPTY_TILE:
+                        highest_value = piece_value
+    return highest_value
 
 
 def determine_unrevealed_bombs_amount(player_bomb_locations: list, unrevealed_pieces: np.ndarray) -> int:

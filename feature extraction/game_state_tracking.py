@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import copy
 import feature_extraction
 import datapoint_feature_containment as dfc
 import value_calculation as val_calc
@@ -31,7 +32,8 @@ class GameStateTracker:
         self.unmoved_pieces = None
         self.unrevealed_pieces = None
         self.red_start = None
-        self.piece_values = np.zeros([board.ROWS, board.COLS])
+        self.piece_values_red = np.zeros([board.ROWS, board.COLS])
+        self.piece_values_blue = np.zeros([board.ROWS, board.COLS])
         self.red_bombs = list()
         self.blue_bombs = list()
         self.red_flag = list()
@@ -43,15 +45,23 @@ class GameStateTracker:
         self.board_state = board_state
         self.unmoved_pieces = unmoved_pieces
         self.unrevealed_pieces = unrevealed_pieces
+        for ind_row, row in enumerate(self.board_state):
+            for ind_col, piece_rank in enumerate(row):
+                if piece_rank not in ranks.NO_PIECES:
+                    piece_init_value_index = ranks.ALL_PIECES[piece_rank]
+                    piece_init_value = ranks.INITIAL_VALUES[piece_init_value_index]
+                    if val_calc.determine_piece_color(piece_rank) == ranks.PLAYER_RED:
+                        self.piece_values_red[ind_row, ind_col] = piece_init_value
+                    else:
+                        self.piece_values_blue[ind_row, ind_col] = piece_init_value
 
     def update_game_state(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray,
                           source: str, target: str) -> dfc.DataPointFeatureContainer:
         parsed_source = utils.parse_location_encoding_to_row_column(source)
-        parsed_target = utils.parse_location_encoding_to_row_column(target)
+        parsed_target = utils.parse_location_encoding_to_row_column(target) # hier heb je al de vorige values! je initialiseert je np.ndarrays in de init functie
 
         self.current_turn_number += self._NEW_TURN
-        # self._determine_captured_pieces_and_values(parsed_source, parsed_target)
-
+        self._determine_captured_pieces_and_values(parsed_source, parsed_target)
         self.board_state = board_state
         self.unmoved_pieces = unmoved_pieces
         self.unrevealed_pieces = unrevealed_pieces
@@ -63,11 +73,12 @@ class GameStateTracker:
                                                                 extracted_feature_container, self.red_bombs,
                                                                 self.blue_bombs, self.red_flag, self.blue_flag)
         feature_extractor.extract_features()
+        self.piece_values_red = copy.deepcopy(feature_extractor.piece_values_red)
+        self.piece_values_blue = copy.deepcopy(feature_extractor.piece_values_blue)
         self._add_long_term_features_to_feature_container(extracted_feature_container) # FIXME 27 28 29 en 30 en 42 en 43 werken niet
         print(extracted_feature_container.extracted_features)
         print(sorted(extracted_feature_container.extracted_features.keys()))
         return extracted_feature_container
-
 
     def _determine_captured_pieces_and_values(self, source: list, target: list) -> None:
         """
@@ -76,75 +87,75 @@ class GameStateTracker:
         :param target: the 2d array location (y, x) of the target tile (moving to)
         """
         source_piece = self.board_state[source[board.Y_POS], source[board.X_POS]]
-        target_piece = self.board_state[source[board.Y_POS], source[board.X_POS]]
-        source_value = self.piece_values[source[board.Y_POS], source[board.X_POS]]
-        target_value = self.piece_values[target[board.Y_POS], target[board.X_POS]]
+        target_piece = self.board_state[target[board.Y_POS], target[board.X_POS]]
         current_player = val_calc.determine_piece_color(source_piece)
         opponent = val_calc.get_other_player(current_player)
+        # source_value = 0#self._va[source[board.Y_POS], source[board.X_POS]] # FIXME
+        # target_value = 0#self.piece_values[target[board.Y_POS], target[board.X_POS]] # FIXME
         result_source, result_target, result = ranks.determine_move_to_result(source_piece, target_piece)
-        players_number_captured_pieces = [self._number_of_opponent_pieces_captured_red,
-                                          self._number_of_opponent_pieces_captured_blue]
-        players_value_captured_pieces = [self._value_of_opponent_pieces_captured_red,
-                                         self._value_of_opponent_pieces_captured_blue]
-        current_player_amount_captured = players_number_captured_pieces[current_player]
-        opponent_amount_captured = players_number_captured_pieces[opponent]
-        current_player_value_captured = players_value_captured_pieces[current_player]
-        opponent_value_captured = players_value_captured_pieces[opponent]
-        self._process_move_result(result, source_value, target_value, current_player_amount_captured,
-                                  opponent_amount_captured, current_player_value_captured, opponent_value_captured)
-        player = val_calc.determine_piece_color(source_piece)
-        opponent = val_calc.get_other_player(player)
-        self._interpret_move_towards_opponent(source, target, player, opponent)
+        self._process_move_result(result, current_player, source, target)
+        self._interpret_move_towards_opponent(source, target, current_player, opponent)
 
-    def _process_move_result(self, result: int, source_value: float, target_value: float,
-                             current_player_amount_captured: int, opponent_amount_captured: float,
-                             current_player_value_captured: int, opponent_value_captured: float) -> None:
+    def _process_move_result(self, result: int, player: int, source: list, target: list) -> None:
         """
         process the result of a move action regarding player total captures
         :param result: the result of the move (win, draw, lose, empty)
-        :param source_value: the float value of the moving piece
-        :param target_value: the float value of the targetted piece (0 if empty)
-        :param current_player_amount_captured:
-        :param opponent_amount_captured:
-        :param current_player_value_captured:
-        :param opponent_value_captured:
+        :param player: the current player
+        :param source: [y,x] tile the move originated from
+        :param target: [y,x] tile that's the target of the move
         """
         if result == ranks.MOVE_WIN:
-            current_player_amount_captured += val_calc.INCREMENT_ONE
-            current_player_value_captured += target_value
+            if player == ranks.PLAYER_RED:
+                self._number_of_opponent_pieces_captured_red += val_calc.INCREMENT_ONE
+                target_value = self.piece_values_blue[target[board.Y_POS], target[board.X_POS]]
+                self._value_of_opponent_pieces_captured_red += target_value
+            else:
+                self._number_of_opponent_pieces_captured_blue += val_calc.INCREMENT_ONE
+                target_value = self.piece_values_red[target[board.Y_POS], target[board.X_POS]]
+                self._value_of_opponent_pieces_captured_blue += target_value
         elif result == ranks.MOVE_LOSE:
-            opponent_amount_captured += val_calc.INCREMENT_ONE
-            opponent_value_captured += source_value
+            if player == ranks.PLAYER_RED:
+                self._number_of_opponent_pieces_captured_blue += val_calc.INCREMENT_ONE
+                source_value = self.piece_values_red[source[board.Y_POS], source[board.X_POS]]
+                self._value_of_opponent_pieces_captured_blue += source_value
+            else:
+                self._number_of_opponent_pieces_captured_red += val_calc.INCREMENT_ONE
+                source_value = self.piece_values_blue[source[board.Y_POS], source[board.X_POS]]
+                self._value_of_opponent_pieces_captured_red += source_value
         elif result == ranks.MOVE_DRAW:
-            current_player_amount_captured += val_calc.INCREMENT_ONE
-            current_player_value_captured += target_value
-            opponent_amount_captured += val_calc.INCREMENT_ONE
-            opponent_value_captured += source_value
+            if player == ranks.PLAYER_RED:
+                self._number_of_opponent_pieces_captured_red += val_calc.INCREMENT_ONE
+                target_value = self.piece_values_blue[target[board.Y_POS], target[board.X_POS]]
+                self._value_of_opponent_pieces_captured_red += target_value
+                self._number_of_opponent_pieces_captured_blue += val_calc.INCREMENT_ONE
+                source_value = self.piece_values_red[source[board.Y_POS], source[board.X_POS]]
+                self._value_of_opponent_pieces_captured_blue += source_value
+            else:
+                self._number_of_opponent_pieces_captured_blue += val_calc.INCREMENT_ONE
+                target_value = self.piece_values_red[target[board.Y_POS], target[board.X_POS]]
+                self._value_of_opponent_pieces_captured_blue += target_value
+                self._number_of_opponent_pieces_captured_red += val_calc.INCREMENT_ONE
+                source_value = self.piece_values_blue[source[board.Y_POS], source[board.X_POS]]
+                self._value_of_opponent_pieces_captured_red += source_value
 
     def _interpret_move_towards_opponent(self, source: list, target: list, player: int, opponent: int) -> None:
         """
-        store the amount of times players move towards each other.
+        store the amount of times players move towards each others board edge.
         :param source: the source tile
         :param target: the target tile
         :param player: the current player
         :param opponent: the opponent
         """
-        players_moves_towards_opponents = [self._moves_toward_opponent_red, self._moves_toward_opponent_blue]
         move_direction = int(target[board.Y_POS]) - int(source[board.Y_POS])
         edges = [board.BOTTOM, board.TOP]
         if self.red_start == board.TOP:
             edges = [board.TOP, board.BOTTOM]
         opposing_edge = edges[opponent]
         if move_direction == opposing_edge:
-            players_moves_towards_opponents[player] += val_calc.INCREMENT_ONE
-
-    def calculate_features(self, initial_deployment: np.ndarray, unmoved_pieces: np.ndarray, # FIXME these two do nothing
-                           unrevealed_pieces: np.ndarray, piece_values: np.ndarray,
-                           extracted_feature_container: dfc.DataPointFeatureContainer):
-        pass
-
-    def _generate_feature_dict(self):
-        pass
+            if player == ranks.PLAYER_RED:
+                self._moves_toward_opponent_red += val_calc.INCREMENT_ONE
+            else:
+                self._moves_toward_opponent_blue += val_calc.INCREMENT_ONE
 
     def _get_static_piece_positions(self, board_state: np.ndarray):
         self.red_bombs = list()
@@ -168,7 +179,10 @@ class GameStateTracker:
     def _add_long_term_features_to_feature_container(self, feats: dfc.DataPointFeatureContainer):
         player_turn_number = val_calc.get_player_turn_number(self.current_turn_number)
 
-        feats.extracted_features[feats.CURRENT_TURN_NUMBER] = self.current_turn_number
+        print(self._number_of_opponent_pieces_captured_red)
+        print(self._value_of_opponent_pieces_captured_blue)
+
+        feats.extracted_features[feats.CURRENT_TURN_NUMBER] = self.current_turn_number  #
 
         feats.extracted_features[feats.MEAN_AMOUNT_CAPTURES_PER_TURN_RED] = \
             self._number_of_opponent_pieces_captured_red / player_turn_number

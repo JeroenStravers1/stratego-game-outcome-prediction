@@ -65,10 +65,12 @@ class LogProcessor:
         game_node = log_xml_root.find(self._GAME_NODE)
         winner = self._interpret_game_log_winner(game_node) #FIXME use winner to annotate class!
         player_deployment, unmoved_pieces, unrevealed_pieces = self._interpret_starting_position(game_node) # moet een keer voor de beginopstellinge en aparte calc feature call gooien.
-
+        init_deployment = copy.deepcopy(player_deployment)
+        init_unmoved = copy.deepcopy(unmoved_pieces)
+        init_unrevealed = copy.deepcopy(unrevealed_pieces)
         # FIXME
         #first_turn_features = api.calculate_features(player_deployment, unmoved_pieces, unrevealed_pieces)
-        api.init_first_turn(player_deployment, unmoved_pieces, unrevealed_pieces)
+        api.init_first_turn(init_deployment, init_unmoved, init_unrevealed)
 
         turn_effect_generator  = self._interpret_turns(game_node, player_deployment, unmoved_pieces, unrevealed_pieces)
         self._store_initial_and_extracted_features_in_csv(dict(), turn_effect_generator, "") #FIXME placeholder args for #0 and #2
