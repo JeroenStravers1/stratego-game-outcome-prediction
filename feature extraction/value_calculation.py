@@ -205,7 +205,6 @@ def determine_piece_color(piece_encoding: str) -> int:
         if piece_encoding in ranks.RED_PIECES_LIST:
             return ranks.PLAYER_RED
         return ranks.PLAYER_BLUE
-    print("empty tile")
     return None
 
 
@@ -240,8 +239,8 @@ def determine_flag_protected(flag_position: list, all_pieces: np.ndarray) -> boo
     top_safe = tile_is_safe([flag_y + ONE, flag_x], player, all_pieces)
     bottom_safe = tile_is_safe([flag_y - ONE, flag_x - ONE], player, all_pieces)
     if left_safe and right_safe and top_safe and bottom_safe:
-        return True
-    return False
+        return int(True)
+    return int(False)
 
 
 def get_non_zero_values(grid_own_piece_values: np.ndarray) -> list:
@@ -256,8 +255,9 @@ def get_non_zero_values(grid_own_piece_values: np.ndarray) -> list:
 def x_relative_to_y(x, y) -> float:
     try:
         return x / y
-    except ZeroDivisionError:
-        print(''.join(("X: ", str(x), " Y: ", str(y), " ZERODIVISIONERROR")))
+    except Exception:
+        print(''.join(("X: ", str(x), " Y: ", str(y), str(Exception))))
+        return 0
 
 
 def get_relative_value_of_unrevealed_pieces(grid_own_piece_values: np.ndarray, unrevealed_pieces: np.ndarray) -> float:
@@ -311,7 +311,7 @@ def determine_unrevealed_bombs_amount(player_bomb_locations: list, unrevealed_pi
     """
     unrevealed_bombas = EMPTY
     for bomb in player_bomb_locations:
-        if unrevealed_pieces[bomb[board.Y_POS], bomb[board.X_POS]] != ranks.EMPTY_TILE:  # FIXME mooi moment voor een print: wat vindt ie hier dan?
+        if unrevealed_pieces[bomb[board.Y_POS], bomb[board.X_POS]] != ranks.EMPTY_TILE:
             unrevealed_bombas += INCREMENT_ONE
     return unrevealed_bombas
 

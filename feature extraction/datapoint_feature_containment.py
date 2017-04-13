@@ -7,8 +7,8 @@ class DataPointFeatureContainer:
     def __init__(self):
         self.extracted_features = dict()
 
-    FEATURE_TOTAL = 80
-    # the comment sign after variable declaration/assignment means it is covered
+    FEATURE_TOTAL = 78
+
     # INFORMATION
     UNREVEALED_BOMBS_RED = 0  #
     UNREVEALED_BOMBS_BLUE = 1  #
@@ -32,79 +32,151 @@ class DataPointFeatureContainer:
     MEAN_BLUE_VALUE_PIECES = 17  #
     SUM_PIECES_RED = 18  #
     SUM_PIECES_BLUE = 19  #
-    SUM_PIECES_RED_MOVABLE = 90  # works
-    SUM_PIECES_BLUE_MOVABLE = 91  # works
-    STARTING_VALUE_PERCENTAGE_RED = 20  #
-    STARTING_VALUE_PERCENTAGE_BLUE = 21  #
-    STARTING_NUMBER_PERCENTAGE_RED = 22  # excluding flag
-    STARTING_NUMBER_PERCENTAGE_BLUE = 23  # excluding flag in count current but including in divisor
-    SUM_THREE_MOST_VALUABLE_RED = 24  #
-    SUM_THREE_MOST_VALUABLE_BLUE = 25  #
-    RED_THREE_MOST_VALUABLE_PERCENTAGE_BLUE_THREE_MOST_VALUABLE = 26  #
-    MEAN_AMOUNT_CAPTURES_PER_TURN_RED = 27  #
-    MEAN_AMOUNT_CAPTURES_PER_TURN_BLUE = 28  #
-    MEAN_VALUE_CAPTURES_PER_TURN_RED = 29  #
-    MEAN_VALUE_CAPTURES_PER_TURN_BLUE = 30  #
-    CURRENT_TURN_NUMBER = 31  #
+    SUM_PIECES_RED_MOVABLE = 20  #
+    SUM_PIECES_BLUE_MOVABLE = 21  #
+    STARTING_VALUE_PERCENTAGE_RED = 22  #
+    STARTING_VALUE_PERCENTAGE_BLUE = 23  #
+    STARTING_NUMBER_PERCENTAGE_RED = 24  #
+    STARTING_NUMBER_PERCENTAGE_BLUE = 25  #
+    SUM_THREE_MOST_VALUABLE_RED = 26  #
+    SUM_THREE_MOST_VALUABLE_BLUE = 27  #
+    RED_THREE_MOST_VALUABLE_PERCENTAGE_BLUE_THREE_MOST_VALUABLE = 28  #
+    MEAN_AMOUNT_CAPTURES_PER_TURN_RED = 29  #
+    MEAN_AMOUNT_CAPTURES_PER_TURN_BLUE = 30  #
+    MEAN_VALUE_CAPTURES_PER_TURN_RED = 31  #
+    MEAN_VALUE_CAPTURES_PER_TURN_BLUE = 32  #
+    CURRENT_TURN_NUMBER = 33  #
 
     # BOARD POSITION
-    OWN_FLAG_SAFE_RED = 32  #
-    OWN_FLAG_SAFE_BLUE = 33  #
-    SUM_VALUE_FRIENDLIES_ONE_TILE_RADIUS_OWN_FLAG_RED = 34  # DROPPED. contains less info than the 2 tile radius features
-    SUM_VALUE_FRIENDLIES_ONE_TILE_RADIUS_OWN_FLAG_BLUE = 35  # DROPPED. contains less info than the 2 tile radius features
+    OWN_FLAG_SAFE_RED = 34  #
+    OWN_FLAG_SAFE_BLUE = 35  #
     SUM_VALUE_FRIENDLIES_TWO_TILE_RADIUS_OWN_FLAG_RED = 36  #
     SUM_VALUE_FRIENDLIES_TWO_TILE_RADIUS_OWN_FLAG_BLUE = 37  #
-    SUM_VALUE_HOSTILES_ONE_TILE_RADIUS_OWN_FLAG_RED = 38  # DROPPED. contains less info than the 2 tile radius features
-    SUM_VALUE_HOSTILES_ONE_TILE_RADIUS_OWN_FLAG_BLUE = 39  # DROPPED. contains less info than the 2 tile radius features
-    SUM_VALUE_HOSTILES_TWO_TILE_RADIUS_OWN_FLAG_RED = 40  #
-    SUM_VALUE_HOSTILES_TWO_TILE_RADIUS_OWN_FLAG_BLUE = 41  #
-    SUM_MOVES_TOWARD_OPPONENT_BOARD_EDGE_RED = 42   #
-    SUM_MOVES_TOWARD_OPPONENT_BOARD_EDGE_BLUE = 43  #
-    SUM_POSSIBLE_MOVES_RED = 44  #
-    SUM_POSSIBLE_MOVES_BLUE = 45  #
-    SUM_SAFE_MOVES_RED = 46  # DROPPED. What is safe? This measures non-aggressive moves, but is capturing a weaker piece not a safe move?
-    SUM_SAFE_MOVES_BLUE = 47  # DROPPED. What is safe? This measures non-aggressive moves, but is capturing a weaker piece not a safe move?
-    SUM_FRIENDLIES_WITH_HOSTILES_ADJACENT_TILE_RED = 48  #
-    SUM_FRIENDLIES_WITH_HOSTILES_ADJACENT_TILE_BLUE = 49  #
-    SUM_HOSTILES_ADJACENT_TO_FRIENDLIES_RED = 50  # DROPPED - this is covered by the above two variables
-    SUM_HOSTILES_ADJACENT_TO_FRIENDLIES_BLUE = 51  # DROPPED - this is covered by the above two variables
-    SUM_ADJACENT_CAPTURABLES_RED = 52  # DROPPED - time / information value
-    SUM_ADJACENT_CAPTURABLES_BLUE = 53  # DROPPED - time / information value
-    SUM_ADJACENT_REVEALED_CAPTURABLES_RED = 54  # DROPPED - time / information value
-    SUM_ADJACENT_REVEALED_CAPTURABLES_BLUE = 55  # DROPPED - time / information value
-    SUM_VALUE_FRIENDLIES_WITH_ADJACENT_HOSTILES_RED = 56  #
-    SUM_VALUE_FRIENDLIES_WITH_ADJACENT_HOSTILES_BLUE = 57  #
-    SUM_VALUE_HOSTILES_WITH_ADJACENT_FRIENDLIES_RED = 58  # DROPPED - this is covered by the above two variables
-    SUM_VALUE_HOSTILES_WITH_ADJACENT_FRIENDLIES_BLUE = 59  # DROPPED - this is covered by the above two variables
+    SUM_VALUE_HOSTILES_TWO_TILE_RADIUS_OWN_FLAG_RED = 38  #
+    SUM_VALUE_HOSTILES_TWO_TILE_RADIUS_OWN_FLAG_BLUE = 39  #
+    SUM_MOVES_TOWARD_OPPONENT_BOARD_EDGE_RED = 40   #
+    SUM_MOVES_TOWARD_OPPONENT_BOARD_EDGE_BLUE = 41  #
+    SUM_POSSIBLE_MOVES_RED = 42  #
+    SUM_POSSIBLE_MOVES_BLUE = 43  #
+    SUM_FRIENDLIES_WITH_HOSTILES_ADJACENT_TILE_RED = 44  #
+    SUM_FRIENDLIES_WITH_HOSTILES_ADJACENT_TILE_BLUE = 45  #
+    SUM_VALUE_FRIENDLIES_WITH_ADJACENT_HOSTILES_RED = 46  #
+    SUM_VALUE_FRIENDLIES_WITH_ADJACENT_HOSTILES_BLUE = 47  #
 
     # BOARD CHUNKS
-    R_A10 = 60
-    B_A10 = 61
-    R_A8 = 62
-    B_A8 = 63
-    R_A6 = 64
-    B_A6 = 65
-    R_A4 = 66
-    B_A4 = 67
-    R_A2 = 68
-    B_A2 = 69
-    R_D10 = 70
-    B_D10 = 71
-    R_D8 = 72
-    B_D8 = 73
-    R_E6 = 74
-    B_E6 = 75
-    R_D4 = 76
-    B_D4 = 77
-    R_D2 = 78
-    B_D2 = 79
-    R_H10 = 80
-    B_H10 = 81
-    R_H8 = 82
-    B_H8 = 83
-    R_I6 = 84
-    B_I6 = 85
-    R_H4 = 86
-    B_H4 = 87
-    R_H2 = 88
-    B_H2 = 89
+    R_A10 = 48
+    B_A10 = 49
+    R_A8 = 50
+    B_A8 = 51
+    R_A6 = 52
+    B_A6 = 53
+    R_A4 = 54
+    B_A4 = 55
+    R_A2 = 56
+    B_A2 = 57
+    R_D10 = 58
+    B_D10 = 59
+    R_D8 = 60
+    B_D8 = 61
+    R_E6 = 62
+    B_E6 = 63
+    R_D4 = 64
+    B_D4 = 65
+    R_D2 = 66
+    B_D2 = 67
+    R_H10 = 68
+    B_H10 = 69
+    R_H8 = 70
+    B_H8 = 71
+    R_I6 = 72
+    B_I6 = 73
+    R_H4 = 74
+    B_H4 = 75
+    R_H2 = 76
+    B_H2 = 77
+
+
+FEATURE_NAMES = (
+    "UNREV_BOMBS_R",
+    "UNREV_BOMBS_B",
+    "PERC_UNREV_R",
+    "PERC_UNREV_B",
+    "PERC_UNMOV_R",
+    "PERC_UNMOV_B",
+    "MOST_VAL_REV_R",
+    "MOST_VAL_REV_B",
+    "MOST_VAL_UNREV_R",
+    "MOST_VAL_UNREV_B",
+    "PERC_VALS_UNREV_R",
+    "PERC_VALS_UNREV_B",
+
+    "PERC_R_V_B_VAL_STRONGEST",
+    "PERC_SUM_VAL_R_V_B",
+    "STDEV_R_VALS",
+    "STDEV_B_VALS",
+    "MEAN_R_VALS",
+    "MEAN_B_VALS",
+    "SUM_R",
+    "SUM_B",
+    "SUM_R_MOVABLES",
+    "SUM_B_MOVABLES",
+    "START_VAL_PERC_R",
+    "START_VAL_PERC_B",
+    "START_N_PERC_R",
+    "START_N_PERC_B",
+    "SUM_3_MVP_R_RED",
+    "SUM_3_MVP_B",
+    "R_V_B_3_MVP",
+    "MEAN_CAPTS_TURN_R",
+    "MEAN_CAPTS_TURN_B",
+    "MEAN_VAL_CAPTS_TURN_R",
+    "MEAN_VAL_CAPTS_TURN_B",
+    "TURN",
+    "FLAG_SAFE_R",
+    "FLAG_SAFE_B",
+    "SUM_VAL_FRIENDS_2_FLAG_R",
+    "SUM_VAL_FRIENDS_2_FLAG_B",
+    "SUM_VAL_HOSTILES_2_FLAG_R",
+    "SUM_VAL_HOSTILES_2_FLAG_B",
+    "SUM_MOVES_TO_OPP_R",
+    "SUM_MOVES_TO_OPP_B",
+    "SUM_POSS_MOVES_R",
+    "SUM_POSS_MOVES_B",
+    "SUM_FRIENDS_NEAR_HOSTILES_R",
+    "SUM_FRIENDS_NEAR_HOSTILES_B",
+    "SUM_VAL_FRIENDS_NEAR_HOSTILES_R",
+    "SUM_VAL_FRIENDS_NEAR_HOSTILES_B",
+
+    "R_A10",
+    "B_A10",
+    "R_A8",
+    "B_A8",
+    "R_A6",
+    "B_A6",
+    "R_A4",
+    "B_A4",
+    "R_A2",
+    "B_A2",
+    "R_D10",
+    "B_D10",
+    "R_D8",
+    "B_D8",
+    "R_E6",
+    "B_E6",
+    "R_D4",
+    "B_D4",
+    "R_D2",
+    "B_D2",
+    "R_H10",
+    "B_H10",
+    "R_H8",
+    "B_H8",
+    "R_I6",
+    "B_I6",
+    "R_H4",
+    "B_H4",
+    "R_H2",
+    "B_H2",
+    "WINNER",
+    "ORIGIN_FILE"
+)

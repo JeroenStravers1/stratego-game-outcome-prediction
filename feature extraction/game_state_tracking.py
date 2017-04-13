@@ -39,8 +39,8 @@ class GameStateTracker:
         self.red_flag = list()
         self.blue_flag = list()
 
-    def init_game_board(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray): #FIXME implementeer hier de initiele setup!
-        # FIXME geef hier ook mee wie waar begint!!!!
+    def init_game_board(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray): #FIXME implementeer hier de initiele setup
+                                # FIXME geef hier ook mee wie waar begint!!!!
         # FIXME eventueel hier een rotate functie? waarin je binnenkomende board data verticaal spiegelt indien de spelers andersom zitten en rood boven staat ipv beneden?
         self.board_state = board_state
         self.unmoved_pieces = unmoved_pieces
@@ -58,7 +58,7 @@ class GameStateTracker:
     def update_game_state(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray,
                           source: str, target: str) -> dfc.DataPointFeatureContainer:
         parsed_source = utils.parse_location_encoding_to_row_column(source)
-        parsed_target = utils.parse_location_encoding_to_row_column(target) # hier heb je al de vorige values! je initialiseert je np.ndarrays in de init functie
+        parsed_target = utils.parse_location_encoding_to_row_column(target)
 
         self.current_turn_number += self._NEW_TURN
         self._determine_captured_pieces_and_values(parsed_source, parsed_target)
@@ -75,9 +75,7 @@ class GameStateTracker:
         feature_extractor.extract_features()
         self.piece_values_red = copy.deepcopy(feature_extractor.piece_values_red)
         self.piece_values_blue = copy.deepcopy(feature_extractor.piece_values_blue)
-        self._add_long_term_features_to_feature_container(extracted_feature_container) # FIXME 27 28 29 en 30 en 42 en 43 werken niet
-        print(extracted_feature_container.extracted_features)
-        print(sorted(extracted_feature_container.extracted_features.keys()))
+        self._add_long_term_features_to_feature_container(extracted_feature_container)
         return extracted_feature_container
 
     def _determine_captured_pieces_and_values(self, source: list, target: list) -> None:
@@ -90,8 +88,6 @@ class GameStateTracker:
         target_piece = self.board_state[target[board.Y_POS], target[board.X_POS]]
         current_player = val_calc.determine_piece_color(source_piece)
         opponent = val_calc.get_other_player(current_player)
-        # source_value = 0#self._va[source[board.Y_POS], source[board.X_POS]] # FIXME
-        # target_value = 0#self.piece_values[target[board.Y_POS], target[board.X_POS]] # FIXME
         result_source, result_target, result = ranks.determine_move_to_result(source_piece, target_piece)
         self._process_move_result(result, current_player, source, target)
         self._interpret_move_towards_opponent(source, target, current_player, opponent)
@@ -179,9 +175,6 @@ class GameStateTracker:
     def _add_long_term_features_to_feature_container(self, feats: dfc.DataPointFeatureContainer):
         player_turn_number = val_calc.get_player_turn_number(self.current_turn_number)
 
-        print(self._number_of_opponent_pieces_captured_red)
-        print(self._value_of_opponent_pieces_captured_blue)
-
         feats.extracted_features[feats.CURRENT_TURN_NUMBER] = self.current_turn_number  #
 
         feats.extracted_features[feats.MEAN_AMOUNT_CAPTURES_PER_TURN_RED] = \
@@ -196,7 +189,3 @@ class GameStateTracker:
 
         feats.extracted_features[feats.SUM_MOVES_TOWARD_OPPONENT_BOARD_EDGE_RED] = self._moves_toward_opponent_red
         feats.extracted_features[feats.SUM_MOVES_TOWARD_OPPONENT_BOARD_EDGE_BLUE] = self._moves_toward_opponent_blue
-
-
-
-
