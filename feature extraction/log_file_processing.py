@@ -58,7 +58,7 @@ class LogProcessor:
         self._cleaned_logs_path = cleaned_logs_path
         self._output_file_path = output_file_path
 
-    def process_game_logs(self) -> None:
+    def process_game_logs(self, resuming_interrupted_run: bool) -> None:
         """
         calculate features for all game turns in all game logs. The features are stored in a csv file.
         """
@@ -66,7 +66,8 @@ class LogProcessor:
             all_log_names = os.listdir(self._cleaned_logs_path)
             start_time = datetime.now()
             iteration = 0
-            self._write_headers()
+            if not resuming_interrupted_run:
+                self._write_headers()
             for log_name in all_log_names:
                 iteration += 1
                 current_log_path = utils.extend_path_with(self._cleaned_logs_path, log_name)
@@ -106,7 +107,8 @@ class LogProcessor:
         init_unrevealed = copy.deepcopy(unrevealed_pieces)
         api.init_first_turn(init_deployment, init_unmoved, init_unrevealed)
         turn_effect_generator  = self._interpret_turns(game_node, player_deployment, unmoved_pieces, unrevealed_pieces)
-        self._store_initial_and_extracted_features_in_csv(dict(), turn_effect_generator, log_name, winner) #FIXME placeholder args for #0
+        self._store_initial_and_extracted_features_in_csv(dict(), turn_effect_generator, log_name, winner)
+        # TODO placeholder arg for #0; implement deployment features
 
     def _interpret_game_log_winner(self, game_node: xml_tree.Element) -> int:
         """
@@ -272,8 +274,9 @@ class LogProcessor:
         return relevant_output_file
 
 if __name__ == "__main__":
+    resuming_interrupted_log_file_processing = False
     files_to_process = "C:/Users/Jeroen/Desktop/test"
     files_to_process = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/Cleaned_Stratego_Games/strados_clean"
     output_file_path = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/train_eval_test_sets/"
     log_processor_test = LogProcessor(files_to_process, output_file_path)
-    log_processor_test.process_game_logs()
+    log_processor_test.process_game_logs(resuming_interrupted_log_file_processing)

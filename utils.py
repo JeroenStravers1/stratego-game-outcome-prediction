@@ -45,11 +45,21 @@ def parse_location_encoding_to_row_column(location: str) -> [int, int]:
     return [row, column]
 
 
-if __name__ == "__main__":
-    rank_height = string.ascii_lowercase.index("A".lower())
-    rank_height2 = string.ascii_lowercase.index("X".lower())
-    rank_height3 = string.ascii_lowercase.index("L".lower())
+def clear_additional_header_lines_from_file(file_location):
+    with open(file_location, "r") as input:
+        cleaned_file_location = file_location.replace(".txt", "_cleaned.txt")
+        with open(cleaned_file_location, "a+") as output:
+            iterations = 0
+            for line in input:
+                if iterations > 0:
+                    if "UNREV_BOMBS_R" in line:
+                        print("Skipping unwanted header line")
+                        continue
+                output.write(line)
+                iterations += 1
 
-    print(rank_height)
-    print(rank_height2)
-    print(rank_height3)
+
+if __name__ == "__main__":
+    clear_additional_header_lines_from_file("D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/train_eval_test_sets/eval.txt")
+    clear_additional_header_lines_from_file("D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/train_eval_test_sets/test.txt")
+    clear_additional_header_lines_from_file("D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/train_eval_test_sets/train.txt")
