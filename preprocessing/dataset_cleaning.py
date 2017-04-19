@@ -45,8 +45,19 @@ class CleanedDatasetProvider:
 
 
 if __name__ == "__main__":
-    path = "C:/Users/Jeroen/Desktop/Stratego games-20170320T133045Z-001/Stratego games"
+    red_count = 0
+    blue_count = 0
+    path = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/Cleaned_Stratego_Games"
+    # path = "C:/Users/Jeroen/Desktop/Stratego games-20170320T133045Z-001/Stratego games"
     extractor = g_e_t_extraction.GameEndingTypeExtractor(path)
     game_ending_types_with_paths = extractor.get_game_endings()
-    dataset_cleaner = CleanedDatasetProvider(path)
-    dataset_cleaner.copy_clean_dataset_to_cleaned_dir(game_ending_types_with_paths)
+    for ending_gen in game_ending_types_with_paths:
+        for end, location in ending_gen:
+            if int(end) == 1:
+                red_count += 1
+            else:
+                blue_count += 1
+    print(red_count)
+    print(blue_count)
+    # dataset_cleaner = CleanedDatasetProvider(path)
+    # dataset_cleaner.copy_clean_dataset_to_cleaned_dir(game_ending_types_with_paths)

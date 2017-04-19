@@ -12,7 +12,8 @@ class GameEndingTypeExtractor:
 
     _CLASSIC_LOG = "classic-"
     _RESULT_NODE = "./game/result"
-    _GAME_ENDING_TYPE = "type"
+    #_GAME_ENDING_TYPE = "type"
+    _GAME_ENDING_TYPE = "winner"
     _PROCESSING = "processing:"
 
     def __init__(self, target_path):
