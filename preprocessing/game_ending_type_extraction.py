@@ -53,3 +53,4 @@ class GameEndingTypeExtractor:
     def _display_progress(self, dir_name):
         progress = ' '.join([self._PROCESSING, dir_name])
         print(progress)
+

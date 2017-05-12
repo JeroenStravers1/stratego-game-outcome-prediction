@@ -42,9 +42,28 @@ class GameStateTracker:
     def init_game_board(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray): #FIXME implementeer hier de initiele setup
                                 # FIXME geef hier ook mee wie waar begint!!!!
         # FIXME eventueel hier een rotate functie? waarin je binnenkomende board data verticaal spiegelt indien de spelers andersom zitten en rood boven staat ipv beneden?
+        self._moves_toward_opponent_red = self._ZERO
+        self._moves_toward_opponent_blue = self._ZERO
+        self._number_of_opponent_pieces_captured_red = self._ZERO
+        self._number_of_opponent_pieces_captured_blue = self._ZERO
+        self._value_of_opponent_pieces_captured_red = self._ZERO
+        self._value_of_opponent_pieces_captured_blue = self._ZERO
+        self.current_turn_number = self._ZERO
+        self.board_state = None
+        self.unmoved_pieces = None
+        self.unrevealed_pieces = None
+        self.red_start = None
+        self.piece_values_red = np.zeros([board.ROWS, board.COLS])
+        self.piece_values_blue = np.zeros([board.ROWS, board.COLS])
+        self.red_bombs = list()
+        self.blue_bombs = list()
+        self.red_flag = list()
+        self.blue_flag = list()
+
         self.board_state = board_state
         self.unmoved_pieces = unmoved_pieces
         self.unrevealed_pieces = unrevealed_pieces
+        self.current_turn_number = self._ZERO
         for ind_row, row in enumerate(self.board_state):
             for ind_col, piece_rank in enumerate(row):
                 if piece_rank not in ranks.NO_PIECES:

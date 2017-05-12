@@ -69,9 +69,9 @@ def clear_additional_header_lines_from_file(file_location) -> None:
                     elif "inf" in line: # some unexpected divide by zero errors slipped through
                         infcount += 1   # I no longer have time to regenerate the dataset (takes 20hrs+)
                         continue        # this is a stop-gap solution.
-                                        # Eval: 1 header line, 15 nan lines, 0 inf lines
-                                        # Test: 1 header line, 39 nan lines, 0 inf lines
-                                        # Train: 1 header line, 170 nan lines, 0 inf lines
+                                        # Eval: 1 header line, 26 nan lines, 0 inf lines
+                                        # Test: 1 header line, 43 nan lines, 0 inf lines
+                                        # Train: 1 header line, 125 nan lines, 0 inf lines
                 output.write(line)
                 iterations += 1
         print(nancount)

@@ -52,7 +52,8 @@ class UniqueEndingTypeIdentifier:
 
 if __name__ == "__main__":
     #path = "C:/Users/Jeroen/Desktop/Stratego games-20170320T133045Z-001/Stratego games"
-    path = "C:/Users/Jeroen/Desktop/Stratego games-20170320T133045Z-001/Cleaned_Stratego_Games"
+    #path = "C:/Users/Jeroen/Desktop/Stratego games-20170320T133045Z-001/Cleaned_Stratego_Games"
+    path = 'D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/Cleaned_Stratego_Games'
     extractor = g_e_t_extraction.GameEndingTypeExtractor(path)
     game_endings_with_paths = extractor.get_game_endings()
 

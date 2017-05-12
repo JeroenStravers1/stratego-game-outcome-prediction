@@ -275,10 +275,10 @@ class LogProcessor:
 
 if __name__ == "__main__":
     resuming_interrupted_log_file_processing = False
-    files_to_process = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/test2/test"
-    # files_to_process = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/Cleaned_Stratego_Games/strados_clean"
-    # output_file_path = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/train_eval_test_sets/"
-    output_file_path = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/testoutput/"
+    #files_to_process = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/test2/test"
+    files_to_process = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/Cleaned_Stratego_Games/strados_clean"
+    output_file_path = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/train_eval_test_sets/"
+    #output_file_path = "D:/Schooldata/Stage/jaar 4/ICT Automatisering/programmeren/Stratego games-20170320T133045Z-001/testoutput/"
 
     log_processor_test = LogProcessor(files_to_process, output_file_path)
     log_processor_test.process_game_logs(resuming_interrupted_log_file_processing)
