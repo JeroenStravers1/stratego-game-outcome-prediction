@@ -79,7 +79,7 @@ MOVE_EMPTY = 3
 REMOVE_EMPTY_AND_WATER = 2
 
 
-def transform_piece_rank_to_comparable_value(piece_rank: str) -> int:  # comment updated
+def transform_piece_rank_to_comparable_value(piece_rank):  # comment updated
     """
     Movable piece rank values are given as c:l and o:x. This function transforms them to values of 2:11
     :param piece_rank: Char rank of the piece (see ranks_encodings.py)
@@ -92,7 +92,7 @@ def transform_piece_rank_to_comparable_value(piece_rank: str) -> int:  # comment
     return rank_height
 
 
-def compare_source_to_target_rank(source: str, target: str) -> [str, str]:  # comment updated
+def compare_source_to_target_rank(source, target):  # comment updated
     """
     determine the outcome of the player's move
     :param source: the moving piece
@@ -108,7 +108,7 @@ def compare_source_to_target_rank(source: str, target: str) -> [str, str]:  # co
     return EMPTY_TILE, EMPTY_TILE, MOVE_DRAW
 
 
-def determine_move_to_result(source: str, target: str) -> [str, str, int]:  # comment updated
+def determine_move_to_result(source, target):  # comment updated
     """
     determine the result of the player's move from the source to the target tile
     :param source: the piece rank in the source tile

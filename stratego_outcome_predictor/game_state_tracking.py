@@ -39,7 +39,7 @@ class GameStateTracker:
         self.red_flag = list()
         self.blue_flag = list()
 
-    def init_game_board(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray): #FIXME implementeer hier de initiele setup
+    def init_game_board(self, board_state, unmoved_pieces, unrevealed_pieces): #FIXME implementeer hier de initiele setup
                                 # FIXME geef hier ook mee wie waar begint!!!!
         # FIXME eventueel hier een rotate functie? waarin je binnenkomende board data verticaal spiegelt indien de spelers andersom zitten en rood boven staat ipv beneden?
         self._moves_toward_opponent_red = self._ZERO
@@ -74,8 +74,7 @@ class GameStateTracker:
                     else:
                         self.piece_values_blue[ind_row, ind_col] = piece_init_value
 
-    def update_game_state(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray,
-                          source: str, target: str) -> dfc.DataPointFeatureContainer:
+    def update_game_state(self, board_state, unmoved_pieces, unrevealed_pieces, source, target):
         parsed_source = utils.parse_location_encoding_to_row_column(source)
         parsed_target = utils.parse_location_encoding_to_row_column(target)
 
@@ -97,7 +96,7 @@ class GameStateTracker:
         self._add_long_term_features_to_feature_container(extracted_feature_container)
         return extracted_feature_container
 
-    def _determine_captured_pieces_and_values(self, source: list, target: list) -> None:
+    def _determine_captured_pieces_and_values(self, source, target):
         """
         get the rank, color and value of the involved piece(s). Call a second function to process the result
         :param source: the 2d array location (y, x) of the source tile (moving from)
@@ -111,7 +110,7 @@ class GameStateTracker:
         self._process_move_result(result, current_player, source, target)
         self._interpret_move_towards_opponent(source, target, current_player, opponent)
 
-    def _process_move_result(self, result: int, player: int, source: list, target: list) -> None:
+    def _process_move_result(self, result, player, source, target):
         """
         process the result of a move action regarding player total captures
         :param result: the result of the move (win, draw, lose, empty)
@@ -153,7 +152,7 @@ class GameStateTracker:
                 source_value = self.piece_values_blue[source[board.Y_POS], source[board.X_POS]]
                 self._value_of_opponent_pieces_captured_red += source_value
 
-    def _interpret_move_towards_opponent(self, source: list, target: list, player: int, opponent: int) -> None:
+    def _interpret_move_towards_opponent(self, source, target, player, opponent):
         """
         store the amount of times players move towards each others board edge.
         :param source: the source tile
@@ -172,7 +171,7 @@ class GameStateTracker:
             else:
                 self._moves_toward_opponent_blue += val_calc.INCREMENT_ONE
 
-    def _get_static_piece_positions(self, board_state: np.ndarray):
+    def _get_static_piece_positions(self, board_state):
         self.red_bombs = list()
         self.blue_bombs = list()
         for row_ind, row in enumerate(board_state):
@@ -180,7 +179,7 @@ class GameStateTracker:
                 position = [row_ind, col_ind]
                 self._store_static_piece_positions(piece, position)
 
-    def _store_static_piece_positions(self, piece: str, position: list):
+    def _store_static_piece_positions(self, piece, position):
         if piece == ranks.R_B:
             self.red_bombs.append(position)
         elif piece == ranks.B_B:
@@ -191,7 +190,7 @@ class GameStateTracker:
             elif piece == ranks.B_F:
                 self.blue_flag = position
 
-    def _add_long_term_features_to_feature_container(self, feats: dfc.DataPointFeatureContainer):
+    def _add_long_term_features_to_feature_container(self, feats):
         player_turn_number = val_calc.get_player_turn_number(self.current_turn_number)
 
         feats.extracted_features[feats.CURRENT_TURN_NUMBER] = self.current_turn_number  #

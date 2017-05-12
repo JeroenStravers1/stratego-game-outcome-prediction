@@ -39,7 +39,7 @@ UNREVEALED = False
 CHUNK = 'chunk'
 
 
-def location_exists(location: list) -> bool:  # FIXME test
+def location_exists(location):  # FIXME test
     if location[board.Y_POS] >= board.ROWS or location[board.Y_POS] < board.FIRST_TILE:
         return False
     elif location[board.X_POS] >= board.ROWS or location[board.X_POS] < board.FIRST_TILE:
@@ -47,7 +47,7 @@ def location_exists(location: list) -> bool:  # FIXME test
     return True
 
 
-def get_total_value_of_pieces_in_chunk(chunk_locations: list, grid_own_piece_values: np.ndarray) -> float:
+def get_total_value_of_pieces_in_chunk(chunk_locations, grid_own_piece_values):
     """
     sums the value of a player's pieces in a chunk
     :param chunk_locations: list of [y,x] tiles in the current chunk
@@ -61,7 +61,7 @@ def get_total_value_of_pieces_in_chunk(chunk_locations: list, grid_own_piece_val
     return sum_chunk_own_piece_values
 
 
-def get_adjacent_tile_locations(target_location: list) -> list: # FIXME test
+def get_adjacent_tile_locations(target_location): # FIXME test
     """
     get locations left, right, up, down from current tile. Does not take viability into account.
     :param target_location: [y,x]
@@ -75,13 +75,13 @@ def get_adjacent_tile_locations(target_location: list) -> list: # FIXME test
     return move_targets
 
 
-def tile_occupied_by_hostile(location: list, grid_opponent_piece_values: np.ndarray):  # FIXME test
+def tile_occupied_by_hostile(location, grid_opponent_piece_values):  # FIXME test
     if grid_opponent_piece_values[location[board.Y_POS], location[board.X_POS]] > ranks.EMPTY_VALUE:
         return True
     return False
 
 
-def tiles_contain_hostiles(locations: list, grid_opponent_piece_values: np.ndarray) -> bool:  # FIXME test
+def tiles_contain_hostiles(locations, grid_opponent_piece_values):  # FIXME test
     """
     returns True if any of the supplied tile locations contain a hostile piece
     :param locations: list of [y,x] locations
@@ -95,8 +95,7 @@ def tiles_contain_hostiles(locations: list, grid_opponent_piece_values: np.ndarr
     return False
 
 
-def sum_value_own_pieces_with_adjacent_hostiles(grid_own_piece_values: np.ndarray,  # FIXME test
-                                      grid_opponent_piece_values: np.ndarray) -> int:
+def sum_value_own_pieces_with_adjacent_hostiles(grid_own_piece_values, grid_opponent_piece_values):# FIXME test
     """
     get the sum of values of own pieces with adjacent hostile pieces
     :param grid_own_piece_values: grid board representation containing the values of own pieces on tiles
@@ -113,8 +112,7 @@ def sum_value_own_pieces_with_adjacent_hostiles(grid_own_piece_values: np.ndarra
     return piece_with_adjacent_hostiles_values
 
 
-def sum_pieces_with_adjacent_hostiles(grid_own_piece_values: np.ndarray,  # FIXME test
-                                      grid_opponent_piece_values: np.ndarray) -> int:
+def sum_pieces_with_adjacent_hostiles(grid_own_piece_values, grid_opponent_piece_values):# FIXME test
     """
     :param grid_own_piece_values: grid board representation containing the values of own pieces on tiles
     :param grid_opponent_piece_values: grid board representation containing the values of opposing pieces on tiles
@@ -130,7 +128,7 @@ def sum_pieces_with_adjacent_hostiles(grid_own_piece_values: np.ndarray,  # FIXM
     return sum_own_pieces_with_adjacent_hostiles
 
 
-def count_valid_move_targets(raw_move_targets: list, all_pieces: np.ndarray) -> int: # FIXME : test
+def count_valid_move_targets(raw_move_targets, all_pieces): # FIXME : test
     """
     determine which locations in a list are valid movement targets
     :param raw_move_targets: list of locations to consider
@@ -145,8 +143,7 @@ def count_valid_move_targets(raw_move_targets: list, all_pieces: np.ndarray) -> 
     return sum_valid_moves
 
 
-def get_possible_moves_amount_by_comparing_own_pieces_to_all_pieces(grid_own_piece_values: np.ndarray,
-                                                                    all_pieces: np.ndarray) -> int:  # FIXME test
+def get_possible_moves_amount_by_comparing_own_pieces_to_all_pieces(grid_own_piece_values, all_pieces):  # FIXME test
     """
     get the total number of possible moves for a player (discounting flags and bombs as they cannot move)
     :param grid_own_piece_values: grid board representation containing only own piece values
@@ -162,7 +159,7 @@ def get_possible_moves_amount_by_comparing_own_pieces_to_all_pieces(grid_own_pie
     return sum_possible_moves
 
 
-def get_locations_n_tiles_from_centre(n: int, radius_centre: list) -> dict:
+def get_locations_n_tiles_from_centre(n, radius_centre):
     """
     get [y,x] representations of tiles in radius of n tiles from starting point
     :param n: number of tiles in radius (excluding centre)
@@ -177,8 +174,7 @@ def get_locations_n_tiles_from_centre(n: int, radius_centre: list) -> dict:
     return board.generate_chunk_coordinates(chunk)
 
 
-def get_total_values_pieces_in_n_tile_radius_from_location_in_grid(n: int, radius_centre: list,
-                                                                   grid_own_piece_values: np.ndarray) -> float:
+def get_total_values_pieces_in_n_tile_radius_from_location_in_grid(n, radius_centre, grid_own_piece_values):
     """
     :param n: tile radius (excluding the centre tile)
     :param grid_own_piece_values: the grid to find the values in
@@ -200,7 +196,7 @@ def get_other_player(current_player):
     return ranks.PLAYER_RED
 
 
-def determine_piece_color(piece_encoding: str) -> int:
+def determine_piece_color(piece_encoding):
     if piece_encoding not in ranks.NO_PIECES:
         if piece_encoding in ranks.RED_PIECES_LIST:
             return ranks.PLAYER_RED
@@ -208,7 +204,7 @@ def determine_piece_color(piece_encoding: str) -> int:
     return None
 
 
-def tile_is_safe(tile: list, player: int, all_pieces: np.ndarray) -> bool:
+def tile_is_safe(tile, player, all_pieces):
     """
     check if a tile is occupied by a friendly piece, is out of bounds or is water
     :param tile: location to check
@@ -224,7 +220,7 @@ def tile_is_safe(tile: list, player: int, all_pieces: np.ndarray) -> bool:
     return True
 
 
-def determine_flag_protected(flag_position: list, all_pieces: np.ndarray) -> bool:
+def determine_flag_protected(flag_position, all_pieces):
     """
     determine if a player's flag is surrounded (horizontally and vertically) by friendly pieces or board edges
     :param flag_position: y, x coordinates
@@ -243,7 +239,7 @@ def determine_flag_protected(flag_position: list, all_pieces: np.ndarray) -> boo
     return int(False)
 
 
-def get_non_zero_values(grid_own_piece_values: np.ndarray) -> list:
+def get_non_zero_values(grid_own_piece_values):
     values = list()
     for row in grid_own_piece_values:
         for value in row:
@@ -252,7 +248,7 @@ def get_non_zero_values(grid_own_piece_values: np.ndarray) -> list:
     return values
 
 
-def x_relative_to_y(x, y) -> float:
+def x_relative_to_y(x, y):
     try:
         return x / y
     except Exception:
@@ -260,7 +256,7 @@ def x_relative_to_y(x, y) -> float:
         return 0
 
 
-def get_relative_value_of_unrevealed_pieces(grid_own_piece_values: np.ndarray, unrevealed_pieces: np.ndarray) -> float:
+def get_relative_value_of_unrevealed_pieces(grid_own_piece_values, unrevealed_pieces):
     """
     get the relative value of the player's unrevealed piece values compared to her total piece values
     :param grid_own_piece_values: array with the player's piece values
@@ -278,15 +274,14 @@ def get_relative_value_of_unrevealed_pieces(grid_own_piece_values: np.ndarray, u
     return x_relative_to_y(sum_unrevealed_piece_values, sum_all_piece_values)
 
 
-def get_value_of_highest_value_revealed_or_unrevealed_piece(grid_own_piece_values: np.ndarray,
-                                                            unrevealed_pieces: np.ndarray,
-                                                            use_revealed_pieces: bool) -> float:
+def get_value_of_highest_value_revealed_or_unrevealed_piece(grid_own_piece_values, unrevealed_pieces,
+                                                            use_revealed_pieces):
     """
     get the value of the highest value revealed or unrevealed piece for the player
     :param grid_own_piece_values: array with the player's piece values
     :param unrevealed_pieces: array with all unrevealed pieces ranks; revealed pieces are represented with 'A'
     (EMPTY_TILE) status
-    :param use_both_revealed_and_unrevealed_pieces:
+    :param use_revealed_pieces:
     :return: the player's highest value unrevealed piece's value
     """
     highest_value = EMPTY
@@ -302,7 +297,7 @@ def get_value_of_highest_value_revealed_or_unrevealed_piece(grid_own_piece_value
     return highest_value
 
 
-def determine_unrevealed_bombs_amount(player_bomb_locations: list, unrevealed_pieces: np.ndarray) -> int:
+def determine_unrevealed_bombs_amount(player_bomb_locations, unrevealed_pieces):
     """
     count the number of unrevealed bombs a player has
     :param player_bomb_locations: [y,x] locations of a player's bombs
@@ -316,7 +311,7 @@ def determine_unrevealed_bombs_amount(player_bomb_locations: list, unrevealed_pi
     return unrevealed_bombas
 
 
-def calculate_reveal_base_penalty_modifier(player_movable_pieces_sum: int) -> float:
+def calculate_reveal_base_penalty_modifier(player_movable_pieces_sum):
     """
     1 + 28 - (pieces_left * 2) -> percentage cost of being revealed when player moving pieces <= 14
     """
@@ -327,7 +322,7 @@ def calculate_reveal_base_penalty_modifier(player_movable_pieces_sum: int) -> fl
     return modifier
 
 
-def get_player_turn_number(cumulative_turns: int) -> int:
+def get_player_turn_number(cumulative_turns):
     """"
     :return player_turn_number: returns 1 for the first turn for either player, 2 for the second turn etcetera
     """
@@ -337,7 +332,7 @@ def get_player_turn_number(cumulative_turns: int) -> int:
 
 # FIXME coverage below this line
 
-def handle_bomb_values(own_bombs: list, opposing_pieces: np.ndarray, grid_own_piece_values: np.ndarray) -> None:  # covered
+def handle_bomb_values(own_bombs, opposing_pieces, grid_own_piece_values):  # covered
     """
     set 0.5 * the opponent's highest value piece as bomb value
     :param own_bombs: locations (y,x) of own bombs
@@ -352,8 +347,7 @@ def handle_bomb_values(own_bombs: list, opposing_pieces: np.ndarray, grid_own_pi
         grid_own_piece_values[bomb[board.Y_POS], bomb[board.X_POS]] = bomb_value
 
 
-def handle_scout_values(exceptional_valued_movable_pieces: dict, scout: str, opposing_unrevealed_pieces: dict,
-                        grid_own_piece_values: np.ndarray) -> None:  # covered
+def handle_scout_values(exceptional_valued_movable_pieces, scout, opposing_unrevealed_pieces, grid_own_piece_values):  # covered
     """
     multiply the value of scouts by 2.43 if the opponent has more than 1 unrevealed piece left
     :param exceptional_valued_movable_pieces: dict with locations of pieces with special value assignment rules
@@ -367,8 +361,8 @@ def handle_scout_values(exceptional_valued_movable_pieces: dict, scout: str, opp
                 grid_own_piece_values[scout_location[board.Y_POS], scout_location[board.X_POS]] *= SCOUT_VALUE_MODIFIER
 
 
-def handle_spy_values(exceptional_valued_movable_pieces: dict, spy: str, opposing_marshal: str,  # covered
-                      grid_own_piece_values: np.ndarray, opponent_piece_values: np.ndarray) -> None:
+def handle_spy_values(exceptional_valued_movable_pieces, spy, opposing_marshal, grid_own_piece_values,
+                      opponent_piece_values): # covered
     """
     spies have a value equal to 50% of the opponent's marshal's total value, if it still lives
     :param exceptional_valued_movable_pieces: dict with locations of pieces with special value assignment rules
@@ -390,7 +384,7 @@ def handle_spy_values(exceptional_valued_movable_pieces: dict, spy: str, opposin
             grid_own_piece_values[spy_location[board.Y_POS], spy_location[board.X_POS]] = spy_value
 
 
-def get_exceptional_piece_type_value_modifier(piece_type: str, opposing_pieces: dict) -> float:  # covered
+def get_exceptional_piece_type_value_modifier(piece_type, opposing_pieces):  # covered
     if piece_type == ranks.R_10:
         if opposing_pieces[ranks.B_1] > EMPTY:
             return MARSHAL_VALUE_MODIFIER
@@ -406,7 +400,7 @@ def get_exceptional_piece_type_value_modifier(piece_type: str, opposing_pieces: 
     return NO_MODIFIER
 
 
-def determine_n_highest_values_in_grid(n: int, values_grid: np.ndarray) -> list:  # covered
+def determine_n_highest_values_in_grid(n, values_grid):  # covered
     n_highest_values = [EMPTY] * n
     for row in values_grid:
         row_n_highest_value_indices = np.argpartition(row, -n)[-n:]
@@ -417,13 +411,13 @@ def determine_n_highest_values_in_grid(n: int, values_grid: np.ndarray) -> list:
     return n_highest_values
 
 
-def is_revealed(position: list, unrevealed_pieces: np.ndarray) -> bool:
+def is_revealed(position, unrevealed_pieces):
     if unrevealed_pieces[position[board.Y_POS], position[board.X_POS]] == ranks.EMPTY_TILE:
         return True
     return False
 
 
-def determine_player_amount_of_moving_pieces(player: int, player_pieces: dict) -> int:  # covered
+def determine_player_amount_of_moving_pieces(player, player_pieces):  # covered
     static_pieces = [ranks.R_B, ranks.R_F] if player == ranks.PLAYER_RED else [ranks.B_B, ranks.B_F]
     sum_moving_pieces = EMPTY
     for key in player_pieces:
@@ -432,22 +426,21 @@ def determine_player_amount_of_moving_pieces(player: int, player_pieces: dict) -
     return sum_moving_pieces
 
 
-def assign_piece_to_red_or_blue_player_dict(piece_encoding: str, red_player_pieces: dict, blue_player_pieces: dict) \
-        -> None:
+def assign_piece_to_red_or_blue_player_dict(piece_encoding, red_player_pieces, blue_player_pieces):
     if determine_piece_color(piece_encoding) == ranks.PLAYER_RED:
         red_player_pieces[piece_encoding] += ONE
     else:
         blue_player_pieces[piece_encoding] += ONE
 
 
-def initialize_player_pieces_dict(piece_ranks: list) -> dict:
+def initialize_player_pieces_dict(piece_ranks):
     player_pieces = dict()
     for possible_rank in piece_ranks:
         player_pieces[possible_rank] = ranks.EMPTY_VALUE
     return player_pieces
 
 
-def get_amount_of_pieces_per_rank(board_state: list) -> [dict, dict]:  # covered
+def get_amount_of_pieces_per_rank(board_state):  # covered
     red_player_pieces = initialize_player_pieces_dict(ranks.RED_PIECES_LIST)
     blue_player_pieces = initialize_player_pieces_dict(ranks.BLUE_PIECES_LIST)
     for row in board_state:
@@ -457,13 +450,13 @@ def get_amount_of_pieces_per_rank(board_state: list) -> [dict, dict]:  # covered
     return red_player_pieces, blue_player_pieces
 
 
-def get_player_movable_pieces_codes(piece_code: str) -> list:
+def get_player_movable_pieces_codes(piece_code):
     if determine_piece_color(piece_code) == ranks.PLAYER_RED:
         return ranks.RED_MOVABLE_PIECES
     return ranks.BLUE_MOVABLE_PIECES
 
 
-def determine_rank_values(own_pieces_per_rank: dict, opposing_pieces_per_rank: dict) -> list:  # covered
+def determine_rank_values(own_pieces_per_rank, opposing_pieces_per_rank):  # covered
     """
     uses De Boer's algorithm (2007) to increase the value of a piece's rank only if it can capture opposing pieces that
     a friendly piece of one rank lower could not capture. *www.kbs.twi.tudelft.nl/docs/MSc/2007/deBoer/thesis.pdf

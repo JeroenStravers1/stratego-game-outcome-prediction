@@ -1,5 +1,5 @@
 import numpy as np
-import hug
+import flask
 from game_state_tracking import GameStateTracker
 from datapoint_feature_containment import DataPointFeatureContainer
 
@@ -9,14 +9,13 @@ game_state = GameStateTracker()
 # FIXME Needs game over recognition!!!!
 
 
-def init_first_turn(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray) -> None:
+def init_first_turn(piece_positions, unmoved_pieces, unrevealed_pieces):
     # FIXME needs player satsarting positions
     RED_START_BOTTOM = 1
     game_state.init_game_board(piece_positions, unmoved_pieces, unrevealed_pieces)
 
 
-def calculate_features(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray,
-                       source: str, target: str) -> DataPointFeatureContainer:
+def calculate_features(piece_positions, unmoved_pieces, unrevealed_pieces, source, target):
     """
 
     :param piece_positions: a grid representation of the ranks of all pieces
@@ -31,10 +30,8 @@ def calculate_features(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, 
     return current_turn_extracted_features
 
 
-def get_prediction(piece_positions: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray, source: str,
-                   target: str):
-    """ return type is still unclear"""
-
+def get_prediction(piece_positions, unmoved_pieces, unrevealed_pieces, source, target):
+    """ return type is still unclear""" # TODO
     calculate_features(piece_positions, unmoved_pieces, unrevealed_pieces, source, target)
 
 

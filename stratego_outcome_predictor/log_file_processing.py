@@ -51,14 +51,14 @@ class LogProcessor:
     _EVAL_CHANCE = 8
     _TEST_CHANCE = 10
 
-    def __init__(self, cleaned_logs_path: str, output_file_path: str) -> None:
+    def __init__(self, cleaned_logs_path, output_file_path):
         """
         :param cleaned_logs_path: path to the dir containing all game logs
         """
         self._cleaned_logs_path = cleaned_logs_path
         self._output_file_path = output_file_path
 
-    def process_game_logs(self, resuming_interrupted_run: bool) -> None:
+    def process_game_logs(self, resuming_interrupted_run):
         """
         calculate features for all game turns in all game logs. The features are stored in a csv file.
         """
@@ -76,10 +76,10 @@ class LogProcessor:
                 with open(self._output_file_path + self._PROCESSED_LOGS, "a+") as processed_logs:
                     processed_logs.write(log_name)
                     processed_logs.write("\n")
-        except FileNotFoundError as fnfe:
-            print(fnfe)
+        except IOError as ioerror:
+            print(ioerror)
 
-    def display_progress(self, iteration: int, all_items: list, current_item: str, start_time: datetime) -> None:
+    def display_progress(self, iteration, all_items, current_item, start_time):
         total_iterations_required = len(all_items)
         percentage_text = "Percentage complete: "
         current_progress_percentage = int((iteration / total_iterations_required) * 100)
@@ -93,7 +93,7 @@ class LogProcessor:
                           + str(total_iterations_required) + ") done. ETA in seconds: " + str(eta) + " " + current_item
         print(progress_output)
 
-    def _process_individual_log(self, log_file_path: str, log_name: str) -> None:
+    def _process_individual_log(self, log_file_path, log_name):
         """
         extract all features from an individual log. Each game turn is treated as a data point.
         :param log_file_path: path to the current game log file
@@ -110,7 +110,7 @@ class LogProcessor:
         self._store_initial_and_extracted_features_in_csv(dict(), turn_effect_generator, log_name, winner)
         # TODO placeholder arg for #0; implement deployment features
 
-    def _interpret_game_log_winner(self, game_node: xml_tree.Element) -> int:
+    def _interpret_game_log_winner(self, game_node):
         """
         return the id of the player that won the game from the stratego/game/result node)
         :param game_node: the xml tree node containing all game log information
@@ -120,7 +120,7 @@ class LogProcessor:
         winning_player = int(result_node.get(self._WINNER))
         return winning_player
 
-    def _interpret_starting_position(self, game_node: xml_tree.Element) -> [np.ndarray, np.ndarray, np.ndarray]:  # comment updated
+    def _interpret_starting_position(self, game_node):  # comment updated
         """
         convert the inverted (upside-down) single string player deployment to a regular 2d list
         :param game_node: the xml tree node containing all game log information
@@ -141,7 +141,7 @@ class LogProcessor:
             revealed_pieces.append(copy.deepcopy(current_row))
         return np.array(deployment), np.array(unmoved_pieces), np.array(revealed_pieces)
 
-    def _interpret_turns(self, game_node: xml_tree.Element, board_state, unmoved_pieces, unrevealed_pieces):
+    def _interpret_turns(self, game_node, board_state, unmoved_pieces, unrevealed_pieces):
         """
         interpret all individual moves in a log file
         :param game_node: the xml node containing all game information
@@ -156,8 +156,7 @@ class LogProcessor:
             target = node.get(self._TARGET)
             yield self._interpret_move(source, target, board_state, unmoved_pieces, unrevealed_pieces)
 
-    def _interpret_move(self, source: str, target: str, board_state: list, unmoved_pieces: list,  # comment updated
-                        unrevealed_pieces: list) -> [np.ndarray, np.ndarray, np.ndarray, int, int]:
+    def _interpret_move(self, source, target, board_state, unmoved_pieces, unrevealed_pieces):
         """
         interpret the result of the 'A4' -> 'B4' annotated move and update the three board representations accordingly.
         :param source: location from where the move action was initiated
@@ -180,8 +179,7 @@ class LogProcessor:
                                      unrevealed_pieces)
         return np.array(board_state), np.array(unmoved_pieces), np.array(unrevealed_pieces), source, target
 
-    def _determine_moved_pieces(self, source_location: list, target_location: list, move_result: int,
-                                unrevealed_pieces: list):
+    def _determine_moved_pieces(self, source_location, target_location, move_result, unrevealed_pieces):
         """
         track a second layer of the board that only contains unrevealed pieces
         :param source_location: the coordinates of the moving piece
@@ -199,9 +197,8 @@ class LogProcessor:
                 unrevealed_pieces[target_location[self._ROW]][target_location[self._COLUMN]] = ranks.EMPTY_TILE
                 unrevealed_pieces[source_location[self._ROW]][source_location[self._COLUMN]] = ranks.EMPTY_TILE
 
-    def _store_initial_and_extracted_features_in_csv(self, deployment_features: dict,
-                                                     turn_effect_generator: collections.Iterable,
-                                                     log_name: str, winner: str) -> None:
+    def _store_initial_and_extracted_features_in_csv(self, deployment_features, turn_effect_generator, log_name,
+                                                     winner):
         """
         process each turn and store its features in train, eval or test files.
         :param deployment_features: not used, deployment is not a separate feature (yet!)
@@ -219,8 +216,7 @@ class LogProcessor:
                 output_file.write(features)
                 output_file.write("\n")
 
-    def _get_feature_values_as_string(self, current_turn_feature_object: dfc.DataPointFeatureContainer,
-                                      winner: str, log_name: str) -> str:
+    def _get_feature_values_as_string(self, current_turn_feature_object, winner, log_name):
         """
         get all feature values in the object's dict as string in set order (n-1 == class, n == origin log)
         :param current_turn_feature_object:
@@ -239,7 +235,7 @@ class LogProcessor:
         features = features + "," + log_name
         return features
 
-    def _write_headers(self) -> None:
+    def _write_headers(self):
         """
         add the header line with column names to all three relevant text files
         :return:
@@ -258,7 +254,7 @@ class LogProcessor:
         with open(self._output_file_path + self._TEST_FILE_NAME, "a+") as output_file:
             output_file.write(header)
 
-    def _determine_train_eval_or_test(self) -> str:
+    def _determine_train_eval_or_test(self):
         """
         randomly determine which file the current data point will be written to
         :return:

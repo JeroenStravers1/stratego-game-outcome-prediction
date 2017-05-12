@@ -28,7 +28,7 @@ def get_item_by_index_from_string_split_on(target_value_index, string_to_process
     return split_string[target_value_index]
 
 
-def parse_location_encoding_to_row_column(location: str) -> [int, int]:
+def parse_location_encoding_to_row_column(location):
     """
     parse annotated position data (i.e. 'A4') to index values usable in a 2D array representation of the game board
     :param location: <char + int> annotated location data. In the location values int value 10 is represented
@@ -46,7 +46,7 @@ def parse_location_encoding_to_row_column(location: str) -> [int, int]:
     return [row, column]
 
 
-def clear_additional_header_lines_from_file(file_location) -> None:
+def clear_additional_header_lines_from_file(file_location):
     """
     clears additional header lines from files that were mistakenly added upon resuming interrupted log file processing
     the bug causing this behavior has been fixed
@@ -78,7 +78,7 @@ def clear_additional_header_lines_from_file(file_location) -> None:
         print(infcount)
 
 
-def count_word_occurences_in_file(word: str, file_location: str) -> int:
+def count_word_occurences_in_file(word, file_location):
     """
     counts how often a word occurs in a file. Used to determine if class weights are needed in train_cleaned.txt
     :param word: word to count
@@ -93,7 +93,7 @@ def count_word_occurences_in_file(word: str, file_location: str) -> int:
     return word_occurences
 
 
-def count_original_number_of_game_turns_total(folder_location: str) -> int:
+def count_original_number_of_game_turns_total(folder_location):
     """
     sum the turns in all raw StraDos logs. Requires a main_dir/sub_dir/log.xml structure.
     :param file_location: path to directory with directories containing xml logs

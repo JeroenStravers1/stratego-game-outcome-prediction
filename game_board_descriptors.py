@@ -70,7 +70,7 @@ CHUNKS_TOP_LEFT_DIMENSIONS = {
 }
 
 
-def generate_chunk_coordinates(coordinate_starting_positions: dict) -> dict:
+def generate_chunk_coordinates(coordinate_starting_positions):
     """
     generate the coordinates of all chunks in CHUNKS_TOP_LEFT_DIMENSIONS based on the top left square of the chunk
     (row, col) and its width.
@@ -95,7 +95,7 @@ def generate_chunk_coordinates(coordinate_starting_positions: dict) -> dict:
     return chunk_dimensions
 
 
-def tile_can_be_moved_to(tile: list, grid: np.ndarray) -> bool:
+def tile_can_be_moved_to(tile, grid):
     """
     check if a tile is empty (so can be a target for movement)
     :param tile: [y,x]

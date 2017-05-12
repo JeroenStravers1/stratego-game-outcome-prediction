@@ -13,9 +13,8 @@ class FeatureExtractor:
     extracts all features that do not need information regarding previous turns to calculate. Mainly a value container.
     """
 
-    def __init__(self, board_state: np.ndarray, unmoved_pieces: np.ndarray, unrevealed_pieces: np.ndarray,
-                 feature_container: DataPointFeatureContainer, red_bombs: list, blue_bombs: list, red_flag: list,
-                 blue_flag: list) -> None:
+    def __init__(self, board_state, unmoved_pieces, unrevealed_pieces, feature_container, red_bombs, blue_bombs,
+                 red_flag, blue_flag):
 
         self.feats = feature_container
 
@@ -42,7 +41,7 @@ class FeatureExtractor:
         self.blue_pieces_amount = utils.EMPTY
         self.blue_pieces_movable_amount = utils.EMPTY
 
-    def extract_features(self) -> None:
+    def extract_features(self):
         """
         coordinate the extraction of all non-long term features, stores them in the DataPointFeatureContainer
         """
@@ -60,8 +59,7 @@ class FeatureExtractor:
         self._store_features_in_container(red_unmoved_pieces, blue_unmoved_pieces, red_pieces,
                                           blue_pieces)
 
-    def _assign_piece_values(self, red_pieces: dict, blue_pieces: dict, red_unrevealed_pieces: dict,
-                             blue_unrevealed_pieces: dict) -> None:
+    def _assign_piece_values(self, red_pieces, blue_pieces, red_unrevealed_pieces, blue_unrevealed_pieces):
         """
         assign values for each piece. First assign base value and revealed penalty, then handle pieces with specific
         value rules
@@ -94,7 +92,7 @@ class FeatureExtractor:
         self._apply_exceptional_values(exceptional_valued_movable_pieces, red_pieces, blue_pieces,
                                        red_unrevealed_pieces, blue_unrevealed_pieces)
 
-    def _determine_applicable_base_value_modifier(self, current_piece_revealed: bool, player: int) -> float:
+    def _determine_applicable_base_value_modifier(self, current_piece_revealed, player):
         """
         determine the correct modifier for the piece based on whether it has been revealed or nog
         :param current_piece_revealed:
@@ -106,7 +104,7 @@ class FeatureExtractor:
         else:
             return self.red_base_value if player == ranks.PLAYER_RED else self.blue_base_value
 
-    def _determine_reveal_and_base_penalties(self) -> None:
+    def _determine_reveal_and_base_penalties(self):
         """
         account for the fact that the identity of pieces becomes clearer as fewer remain, by reducing both the base
         value of pieces and the discovery penalty. This means that being discovered will become less punishing, while
@@ -119,8 +117,7 @@ class FeatureExtractor:
         self.blue_base_value = val_calc.BASE_REVEAL_PENALTY + blue_modifier
         self.blue_discovery_cost = val_calc.BASE_VALUE + blue_modifier
 
-    def _store_piece_exceptional_value_locations(self, piece_type: str, piece_location: list,
-                                                 exceptional_valued_movable_pieces: dict) -> None:
+    def _store_piece_exceptional_value_locations(self, piece_type, piece_location, exceptional_valued_movable_pieces):
         """
         store the locations of movable pieces with exceptional values (spy, scout, miner, marshal)
         :param piece_type: the type of the piece
@@ -134,8 +131,8 @@ class FeatureExtractor:
             else:
                 exceptional_valued_movable_pieces[piece_type].append(piece_location)
 
-    def _apply_exceptional_values(self, exceptional_valued_movable_pieces: dict, red_pieces: dict, blue_pieces: dict,
-                                  red_unrevealed_pieces: dict, blue_unrevealed_pieces: dict) -> None:
+    def _apply_exceptional_values(self, exceptional_valued_movable_pieces, red_pieces, blue_pieces,
+                                  red_unrevealed_pieces, blue_unrevealed_pieces):
         """
         assign all exceptional values (bombs, spies, scouts, miners and marshals)
         :param exceptional_valued_movable_pieces: dict with locations of pieces with special value assignment rules
@@ -167,8 +164,8 @@ class FeatureExtractor:
         val_calc.handle_bomb_values(self.red_bombs, self.piece_values_blue, self.piece_values_red)
         val_calc.handle_bomb_values(self.blue_bombs, self.piece_values_red, self.piece_values_blue)
 
-    def _store_features_in_container(self, red_unmoved_pieces: dict, blue_unmoved_pieces: dict,
-                                     red_pieces_amount_per_rank: dict, blue_pieces_amount_per_rank: dict) -> None:
+    def _store_features_in_container(self, red_unmoved_pieces, blue_unmoved_pieces, red_pieces_amount_per_rank,
+                                     blue_pieces_amount_per_rank):
         """
         coordinate storage of all turn-based features in container object
         :param red_unmoved_pieces:
@@ -186,8 +183,8 @@ class FeatureExtractor:
         self._store_board_position_features()
         self._store_board_chunk_features()
 
-    def _store_information_features(self, red_unmoved_pieces: np.ndarray, blue_unmoved_pieces: np.ndarray,
-                                    red_pieces_amount_per_rank: dict, blue_pieces_amount_per_rank: dict) -> None:
+    def _store_information_features(self, red_unmoved_pieces, blue_unmoved_pieces, red_pieces_amount_per_rank,
+                                    blue_pieces_amount_per_rank):
         """
         Store all non-long term features that fall under the INFORMATION header
         :param red_unmoved_pieces:
@@ -236,7 +233,7 @@ class FeatureExtractor:
         self.feats.extracted_features[self.feats.PERCENTAGE_VALUE_UNREVEALED_PIECES_BLUE] = \
             val_calc.get_relative_value_of_unrevealed_pieces(self.piece_values_blue, self.unrevealed_pieces)
 
-    def _store_relative_strength_features(self) -> None:
+    def _store_relative_strength_features(self):
         """
         Store all non-long term features that fall under the RELATIVE STRENGTH header
         """
@@ -281,7 +278,7 @@ class FeatureExtractor:
         self.feats.extracted_features[self.feats.RED_THREE_MOST_VALUABLE_PERCENTAGE_BLUE_THREE_MOST_VALUABLE] = \
             val_calc.x_relative_to_y(sum_red_three_highest_values, sum_blue_three_highest_values)
 
-    def _store_board_position_features(self) -> None:
+    def _store_board_position_features(self):
         """
         Store all non-long term features that fall under the BOARD POSITION header
         """
@@ -321,7 +318,7 @@ class FeatureExtractor:
         self.feats.extracted_features[self.feats.SUM_VALUE_FRIENDLIES_WITH_ADJACENT_HOSTILES_BLUE] = \
             val_calc.sum_value_own_pieces_with_adjacent_hostiles(self.piece_values_blue, self.piece_values_red)
 
-    def _store_board_chunk_features(self) -> None:
+    def _store_board_chunk_features(self):
         """
         Store all non-long term features that fall under the BOARD CHUNK header; sum piece values per chunk per player
         """
