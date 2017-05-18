@@ -13,7 +13,7 @@ TRAINED_CLASSIFIER_PATH = "SOMETHING.pkl"
 
 class StrategoClassifier:
 
-    self.TRAINED_CLASSIFIER_PATH = "trained_stratego_classifier.pkl"
+    TRAINED_CLASSIFIER_PATH = "trained_stratego_classifier.pkl"
 
     def __init__(self):
         self.clf = joblib.load(self.TRAINED_CLASSIFIER_PATH)

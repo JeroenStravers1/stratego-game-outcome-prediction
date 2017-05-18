@@ -20,7 +20,7 @@ class StrategoClassifier:
 
     def predict_outcome_from_features(self, feature_container):
         """generates a prediction based on the provided features. Predicts the probabilities of outcomes; blue wins(0) or red wins(1)"""
-        standardized_values = standardize_feature_values(feature_container.extracted_features)
+        standardized_values = self.standardize_feature_values(feature_container.extracted_features)
         prediction = self.clf.predict_proba(standardized_values)
         return prediction
 

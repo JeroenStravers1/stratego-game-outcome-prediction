@@ -59,17 +59,19 @@ update2_payload = {
 
 content_type = {"Content-Type": "application/json"}
 
-url_view = "http://127.0.0.1:5000/view"
-url_update = "http://127.0.0.1:5000/update"
-url_new_game = "http://127.0.0.1:5000/new_game"
+#url_view = "http://127.0.0.1:5000/view"
+#url_update = "http://127.0.0.1:5000/update"
+#url_new_game = "http://127.0.0.1:5000/new_game"
 
-
+url_view = "http://strategoboard.cloudapp.net/view/"
+url_update = "http://strategoboard.cloudapp.net/update"
+url_new_game = "http://strategoboard.cloudapp.net/new_game"
 
 # new game
-#r = requests.post(url_new_game, headers=content_type, data=json.dumps(init_payload))
+r = requests.post(url_new_game, headers=content_type, data=json.dumps(init_payload))
 
 # update
-r2 = requests.post(url_update, headers=content_type, data=json.dumps(update_payload))
+#r2 = requests.post(url_update, headers=content_type, data=json.dumps(update_payload))
 
 #r22 = r2 = requests.post(url_update, headers=content_type, data=json.dumps(update2_payload))
 
