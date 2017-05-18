@@ -1,0 +1,28 @@
+<html>
+<head>
+<style>
+table {background-color: brown; width:50%; height:50%;}
+td {background-color: red;}
+</style>
+<script type="text/javascript"
+    src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript"
+    src="/static/js/sijax/sijax.js"></script>
+<script type="text/javascript">
+    {{ g.sijax.get_js()|safe }}
+
+    function update_view(response_content) {
+        alert(response_content);
+}
+
+    function get_update(){
+        payload = Sijax.request('say_hi');
+        update_view(payload);
+}
+</script>
+</head>
+<body>
+    <div id='main_div'><table><tr><td></td><td> </td></tr><tr><td>2</td><td>2</td></tr><tr><td>3</td><td>3</td></tr></table><table><tr><td>1</td><td>1</td></tr><tr><td>2</td><td>2</td></tr><tr><td>3</td><td>3</td></tr></table></div>
+</body>
+</html>
+

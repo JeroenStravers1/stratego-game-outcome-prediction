@@ -40,7 +40,7 @@ def parse_location_encoding_to_row_column(location):
         raw_row = board.COLON_VALUE
     row = int(raw_row) - START_AT_ZERO_MODIFIER
     raw_column = location[board.Y_POS].lower()
-    column = string.ascii_lowercase.index(raw_column)
+    column = string.lowercase.index(raw_column)
     if column >= board.COLS:
         column = board.COLS - START_AT_ZERO_MODIFIER
     return [row, column]
