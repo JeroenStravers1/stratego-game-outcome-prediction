@@ -10,6 +10,7 @@ import flask_sijax
 from game_state_tracking import GameStateTracker
 from datapoint_feature_containment import DataPointFeatureContainer
 from outcome_prediction import StrategoClassifier
+from html_output_generation import HTML_Generator
 
 
 SOURCE = 'source'
@@ -63,12 +64,6 @@ def get_prediction(piece_positions, unmoved_pieces, unrevealed_pieces, source, t
 def process_outcome_for_display():
     """either change variables being displayed or POST outcome variables to a webservice/site/view"""
     pass
-
-
-def predict_outcome_from_input():
-    # get_prediction()
-    # process_outcome_for_display()
-    return {game_state}
 
 
 def check_for_source_and_target_in_raw_payload(raw_payload, parsed_payload):

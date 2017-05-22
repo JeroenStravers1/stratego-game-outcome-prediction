@@ -10,6 +10,7 @@ import flask_sijax
 from game_state_tracking import GameStateTracker
 from datapoint_feature_containment import DataPointFeatureContainer
 from outcome_prediction import StrategoClassifier
+from html_output_generation import HTML_Generator
 
 
 SOURCE = 'source'

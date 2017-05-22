@@ -78,6 +78,20 @@ r2 = requests.post(url_update, headers=content_type, data=json.dumps(update_payl
 # view
 #r3 = requests.get(url_view)
 
+#quit()
+
+#import time
+
+#new game = requests.post(url_new_game, headers=content_type, data=json.dumps(init_payload))
+
+#time.sleep(5)
+
+#update_first = requests.post(url_update, headers=content_type, data=json.dumps(update_payload))
+
+#time.sleep(5)
+
+#update_second = requests.post(url_update, headers=content_type, data=json.dumps(update2_payload))
+
 
 
 
