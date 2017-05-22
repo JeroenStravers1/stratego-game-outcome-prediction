@@ -94,6 +94,9 @@ def parse_json_post(request):
 @app.route("/new_game", methods=["POST"])
 def init_new_game():
     parsed_payload = parse_json_post(request)
+    print request
+    print "_____________________________"
+    print parsed_payload
     init_first_turn(parsed_payload[INDEX_POSITIONS], parsed_payload[INDEX_UNMOVED], parsed_payload[INDEX_UNREVEALED])
     return "starting new game"
     #return "new game"
