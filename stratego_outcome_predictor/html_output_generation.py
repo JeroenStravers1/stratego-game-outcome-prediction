@@ -242,7 +242,7 @@ class HTML_Generator:
 
     def convert_to_right_column_div(self, feature, color):
         element = "<div style='margin-top:20px'><p style='float:left;'>" + feature + "</p>"
-        element += "<div style='float:right;width:30px;height:30px;background-color:" + color + "'></div>"
+        element += "<div style='float:right;width:30px;height:30px;background-color:" + color + "'></div></div>"
         return element
 
 
