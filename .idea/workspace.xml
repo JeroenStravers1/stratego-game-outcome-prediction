@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a01199f3-f7b8-4711-b62b-e4e1eb7ac582" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py" afterPath="$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratego_outcome_predictor/html_output_generation.py" afterPath="$PROJECT_DIR$/stratego_outcome_predictor/html_output_generation.py" />
     </list>
     <ignored path="stratego-game-outcome-prediction.iws" />
@@ -35,11 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="html_output_generation.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="html_output_generation.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/html_output_generation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="188" column="59" selection-start-line="188" selection-start-column="59" selection-end-line="188" selection-end-column="59" />
+            <state relative-caret-position="561">
+              <caret line="45" column="42" selection-start-line="45" selection-start-column="42" selection-end-line="45" selection-end-column="42" />
               <folding>
                 <element signature="e#0#36#0" expanded="true" />
               </folding>
@@ -47,11 +48,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="game_state_tracking.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="game_state_tracking.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-204">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="799">
+              <caret line="77" column="14" selection-start-line="77" selection-start-column="14" selection-end-line="77" selection-end-column="14" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -69,6 +70,7 @@
       <list>
         <option value="$PROJECT_DIR$/stratego_outcome_predictor/api_stratego_prediction.py" />
         <option value="$PROJECT_DIR$/stratego_outcome_predictor/html_output_generation.py" />
+        <option value="$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py" />
       </list>
     </option>
   </component>
@@ -206,16 +208,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-204">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/api_stratego_prediction.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
@@ -228,10 +220,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/html_output_generation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="188" column="59" selection-start-line="188" selection-start-column="59" selection-end-line="188" selection-end-column="59" />
+        <state relative-caret-position="561">
+          <caret line="45" column="42" selection-start-line="45" selection-start-column="42" selection-end-line="45" selection-end-column="42" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="799">
+          <caret line="77" column="14" selection-start-line="77" selection-start-column="14" selection-end-line="77" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -73,6 +73,9 @@ class GameStateTracker:
                         self.piece_values_red[ind_row, ind_col] = piece_init_value
                     else:
                         self.piece_values_blue[ind_row, ind_col] = piece_init_value
+        print self.piece_values_red
+        print self.piece_values_blue
+        quit()
 
     def update_game_state(self, board_state, unmoved_pieces, unrevealed_pieces, source, target):
         parsed_source = utils.parse_location_encoding_to_row_column(source)

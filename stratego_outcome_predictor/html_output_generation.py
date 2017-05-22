@@ -43,7 +43,7 @@ class HTML_Generator:
 
     #keurtroepen = 22/18 vs 23/19
     init_predictor_output = [[0.50, 0.50]]
-    init_feature_dict = {33:1, 0:6, 1:6, 18:40, 19:40, 12:1, 28:1, 22:1, 23:1, 40:0, 41:0}
+    init_feature_dict = {33:0, 0:6, 1:6, 18:40, 19:40, 12:1, 28:1, 22:1, 23:1, 40:0, 41:0}
 
     vertical_indices = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
     horizontal_indices = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", ""]
