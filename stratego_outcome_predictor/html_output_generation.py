@@ -185,7 +185,8 @@ class HTML_Generator:
 
     def convert_to_left_column_div(self, feature, value):
         element = "<div style='margin-top:20px'><p style='float:right;'>" + feature + str(value) + "</p>"
-        element += "<div style='float:left;width:30px;height:30px;background-color:" + self.COLOR_INVISIBLE + "'></div></div>"
+        element += "<div style='float:left;width:30px;height:30px;background-color:" + self.COLOR_INVISIBLE + "'></div>"
+        element += '<div style="clear: both;"></div></div>'
         return element
 
     def get_right_column_feature_divs(self, feature_dict):
@@ -241,8 +242,9 @@ class HTML_Generator:
         return highest_value_piece, three_strongest, strongest_army, agressor, elite
 
     def convert_to_right_column_div(self, feature, color):
-        element = "<div style='margin-top:20px'><p style='float:left;'>" + feature + "</p>"
-        element += "<div style='float:right;width:30px;height:30px;background-color:" + color + "'></div></div>"
+        element = "<div style='margin-top:20px'><p style='float:left;margin-left:40px;'>" + feature + "</p>"
+        element += "<div style='float:right;width:30px;height:30px;background-color:" + color + "'></div>"
+        element += '<div style="clear: both;"></div></div>'
         return element
 
 
