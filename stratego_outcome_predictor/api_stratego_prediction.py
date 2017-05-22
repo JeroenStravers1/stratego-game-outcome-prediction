@@ -109,6 +109,7 @@ def parse_json_post(request):
 
 @app.route("/new_game", methods=["POST"])
 def init_new_game():
+    print request.data
     parsed_payload = parse_json_post(request)
     print request
     print "_____________________________"
