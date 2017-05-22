@@ -251,8 +251,8 @@ def get_non_zero_values(grid_own_piece_values):
 def x_relative_to_y(x, y):
     try:
         return x / y
-    except ZeroDivisionError as zde:
-        print(''.join(("X: ", str(x), " Y: ", str(y), str(zde))))
+    except Exception:
+        print(''.join(("X: ", str(x), " Y: ", str(y), str(Exception))))
         return 0
 
 

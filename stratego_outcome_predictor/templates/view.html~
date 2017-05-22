@@ -14,20 +14,16 @@
 }
 
     function get_update(){
-        payload = Sijax.request('say_hi');
+        payload = Sijax.request('get_view_content');
         //update_view(payload);
 }
 
     window.setInterval(function(){
         get_update();
-    }, 5000);
+    }, 1000);
 </script>
 </head>
 <body>
-    <a href="javascript://" onclick="get_update()">Click here</a>
-    <div class='wrapper' id='main_div'>
-        
-        
-    </div>
+    <div class='wrapper' id='main_div'></div>
 </body>
 </html>

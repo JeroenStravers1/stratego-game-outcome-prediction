@@ -42,6 +42,8 @@ class HTML_Generator:
     FEATURE_AGGRESSION_BLUE = 41  #
 
     #keurtroepen = 22/18 vs 23/19
+    init_predictor_output = [[0.50, 0.50]]
+    init_feature_dict = {33:1, 0:6, 1:6, 18:40, 19:40, 12:1, 28:1, 22:1, 23:1, 40:0, 41:0}
 
     vertical_indices = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
     horizontal_indices = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", ""]
@@ -52,18 +54,29 @@ class HTML_Generator:
         self.right_data_column = ""
         self.html_output = ""
 
+    def init_game(self, board_state):
+        self.draw_board_representation(board_state)
+        left_results_column_html = "<div class='left'>"
+        right_results_column_html = "<div class='left'>"
+        left_results_column_html, right_results_column_html = self.draw_prediction(init_predictor_output, left_results_column_html, right_results_column_html)
+        left_results_column_html, right_results_column_html = self.draw_game_features(init_feature_dict, left_results_column_html, right_results_column_html)
+        left_results_column_html += "</div>"
+        right_results_column_html += "</div>"
+        self.left_data_column = left_results_column_html
+        self.right_data_column = right_results_column_html
+        self.html_output = self.board_html + self.left_data_column + self.right_data_column
+
     def process_update(self, predictor_output, feature_dict, board_state):
         self.draw_board_representation(board_state)
         left_results_column_html = "<div class='left'>"
         right_results_column_html = "<div class='left'>"
         left_results_column_html, right_results_column_html = self.draw_prediction(predictor_output, left_results_column_html, right_results_column_html)
         left_results_column_html, right_results_column_html = self.draw_game_features(feature_dict, left_results_column_html, right_results_column_html)
-        #print left_results_column_html
-        #quit()
         left_results_column_html += "</div>"
         right_results_column_html += "</div>"
         self.left_data_column = left_results_column_html
         self.right_data_column = right_results_column_html
+        self.html_output = self.board_html + self.left_data_column + self.right_data_column
 
     def draw_board_representation(self, board_state):
         new_board_html = "<div class='left'><table bgcolor='#FEFCE0'>"
@@ -210,9 +223,16 @@ class HTML_Generator:
             agressor = self.COLOR_RED
         if feature_dict[self.FEATURE_AGGRESSION_RED] < feature_dict[self.FEATURE_AGGRESSION_BLUE]:
             agressor = self.COLOR_BLUE
-
-        elites_red = feature_dict[self.FEATURE_ARMY_RED] / feature_dict[self.FEATURE_PIECES_RED]
-        elites_blue = feature_dict[self.FEATURE_ARMY_BLUE] / feature_dict[self.FEATURE_PIECES_BLUE]
+        elites_red = 0
+        elites_blue = 0
+        try:
+            elites_red = feature_dict[self.FEATURE_ARMY_RED] / feature_dict[self.FEATURE_PIECES_RED]
+        except ZeroDivisionError as zde:
+            pass
+        try:        
+            elites_blue = feature_dict[self.FEATURE_ARMY_BLUE] / feature_dict[self.FEATURE_PIECES_BLUE]
+        except ZeroDivisionError as zde:
+            pass
         elite = self.COLOR_BOTH 
         if elites_red > elites_blue:
             elite = self.COLOR_RED
@@ -229,7 +249,7 @@ class HTML_Generator:
 
 if __name__ == "__main__":
     test = HTML_Generator()
-    predictor_output = [[0.54, 0.46]]
+    predictor_output = [[0.40, 0.60]]
     feature_dict = {33:15, 0:6, 1:5, 18:40, 19:40, 12:1, 28:1.2, 22:1, 23:0.8, 40:15, 41:16}
     board_state = np.array([["E","E","B","M","B","E","F","B","D","E"],["B","G","I","B","H","G","B","I","D","E"],["G","J","D","F","D","H","C","D","J","G"],["A","H","D","L","I","F","K","F","D","H"],["D","A","_","_","A","A","_","_","A","A"],["A","A","_","_","P","A","_","_","A","A"],["R","N","T","O","A","T","W","N","P","S"],["P","N","V","P","V","P","S","P","U","X"],["N","Q","T","Q","Q","P","Y","R","N","N"],["R","Q","U","P","T","S","Q","S","U","R"]])
     test.process_update(predictor_output, feature_dict, board_state)

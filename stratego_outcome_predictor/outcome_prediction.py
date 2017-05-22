@@ -34,7 +34,11 @@ class StrategoClassifier:
              feature_mean = ALL_FEATURE_MEANS[feature_index]
              feature_stdev = math.sqrt(ALL_FEATURE_VARIANCE[feature_index])
              centered_feature = feature_value - feature_mean
-             z_score = centered_feature / feature_stdev
+             z_score = 0
+             try:
+                 z_score = centered_feature / feature_stdev
+             except ZeroDivisionError as zde:
+                 pass
              standardized_feature_values.append(z_score)
         list_of_features.append(standardized_feature_values)
         return list_of_features
