@@ -112,7 +112,7 @@ def init_new_game():
     print "hierzo"
     print request.data
     print "einde"
-    print request.data["piece_positions"]
+    print request.data[0]
     parsed_payload = parse_json_post(request)
     print request
     print "_____________________________"
