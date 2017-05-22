@@ -88,6 +88,9 @@ def parse_json_post(request):
     except Exception as err_one:
         print 1
         print err_one
+    print raw_payload
+    print type(raw_payload)
+    print "________AAAAAAA______________"
         
     list_positions = ""
     list_unmoved = ""

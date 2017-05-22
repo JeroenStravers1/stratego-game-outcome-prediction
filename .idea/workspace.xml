@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a01199f3-f7b8-4711-b62b-e4e1eb7ac582" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratego_outcome_predictor/api_stratego_prediction.py" afterPath="$PROJECT_DIR$/stratego_outcome_predictor/api_stratego_prediction.py" />
     </list>
     <ignored path="stratego-game-outcome-prediction.iws" />
@@ -26,8 +27,8 @@
       <file leaf-file-name="api_stratego_prediction.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/api_stratego_prediction.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="113" column="17" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
+            <state relative-caret-position="391">
+              <caret line="94" column="23" selection-start-line="94" selection-start-column="23" selection-end-line="94" selection-end-column="23" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -205,8 +206,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/api_stratego_prediction.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="113" column="17" selection-start-line="113" selection-start-column="17" selection-end-line="113" selection-end-column="17" />
+        <state relative-caret-position="391">
+          <caret line="94" column="23" selection-start-line="94" selection-start-column="23" selection-end-line="94" selection-end-column="23" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
