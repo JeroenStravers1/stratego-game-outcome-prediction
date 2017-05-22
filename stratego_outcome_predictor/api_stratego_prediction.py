@@ -73,7 +73,7 @@ def check_for_source_and_target_in_raw_payload(request, parsed_payload):
     try:
         parsed_payload.append(request.form[SOURCE].replace('"', ''))
         parsed_payload.append(request.form[TARGET].replace('"', ''))
-    escept KeyError:
+    except KeyError:
         print "no source/target in payload"
 
 
