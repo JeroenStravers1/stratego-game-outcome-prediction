@@ -13,11 +13,11 @@ from outcome_prediction import StrategoClassifier
 from html_output_generation import HTML_Generator
 
 
-SOURCE = 'source'
-TARGET = 'target'
-RANKS_POSITIONS = 'piece_positions'
-RANKS_UNMOVED = 'unmoved_pieces'
-RANKS_UNREVEALED = 'unrevealed_pieces'
+SOURCE = '"source"'
+TARGET = '"target"'
+RANKS_POSITIONS = '"piece_positions"'
+RANKS_UNMOVED = '"unmoved_pieces"'
+RANKS_UNREVEALED = '"unrevealed_pieces"'
 INDEX_POSITIONS = 0
 INDEX_UNMOVED = 1
 INDEX_UNREVEALED = 2
@@ -71,8 +71,8 @@ def check_for_source_and_target_in_raw_payload(request, parsed_payload):
     source = raw_payload[SOURCE].replace('"', '')
     target = raw_payload[TARGET].replace('"', '')
     try:
-        parsed_payload.append(request.form[SOURCE].replace('"', ''))
-        parsed_payload.append(request.form[TARGET].replace('"', ''))
+        parsed_payload.append(request.form[SOURCE])
+        parsed_payload.append(request.form[TARGET])
     except KeyError:
         print "no source/target in payload"
 
