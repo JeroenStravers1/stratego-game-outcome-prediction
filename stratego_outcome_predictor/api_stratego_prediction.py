@@ -97,9 +97,9 @@ def parse_json_post(request):
     list_unmoved = ""
     list_unrevealed = ""
     try:
-        list_positions = json.loads(raw_payload[RANKS_POSITIONS])
-        list_unmoved = json.loads(raw_payload[RANKS_UNMOVED])
-        list_unrevealed = json.loads(raw_payload[RANKS_UNREVEALED])
+        list_positions = raw_payload[RANKS_POSITIONS]
+        list_unmoved = raw_payload[RANKS_UNMOVED]
+        list_unrevealed = raw_payload[RANKS_UNREVEALED]
     except Exception as err_two:
         print 2
         print err_two
