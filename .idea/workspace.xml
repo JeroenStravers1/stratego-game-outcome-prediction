@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="a01199f3-f7b8-4711-b62b-e4e1eb7ac582" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py" afterPath="$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stratego_outcome_predictor/html_output_generation.py" afterPath="$PROJECT_DIR$/stratego_outcome_predictor/html_output_generation.py" />
     </list>
     <ignored path="stratego-game-outcome-prediction.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -51,8 +50,8 @@
       <file leaf-file-name="game_state_tracking.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="799">
-              <caret line="77" column="14" selection-start-line="77" selection-start-column="14" selection-end-line="77" selection-end-column="14" />
+            <state relative-caret-position="527">
+              <caret line="90" column="0" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -230,8 +229,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/stratego_outcome_predictor/game_state_tracking.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="799">
-          <caret line="77" column="14" selection-start-line="77" selection-start-column="14" selection-end-line="77" selection-end-column="14" />
+        <state relative-caret-position="527">
+          <caret line="90" column="0" selection-start-line="90" selection-start-column="0" selection-end-line="90" selection-end-column="0" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

@@ -75,7 +75,6 @@ class GameStateTracker:
                         self.piece_values_blue[ind_row, ind_col] = piece_init_value
         print self.piece_values_red
         print self.piece_values_blue
-        quit()
 
     def update_game_state(self, board_state, unmoved_pieces, unrevealed_pieces, source, target):
         parsed_source = utils.parse_location_encoding_to_row_column(source)
@@ -97,6 +96,8 @@ class GameStateTracker:
         self.piece_values_red = copy.deepcopy(feature_extractor.piece_values_red)
         self.piece_values_blue = copy.deepcopy(feature_extractor.piece_values_blue)
         self._add_long_term_features_to_feature_container(extracted_feature_container)
+        print self.piece_values_red
+        print self.piece_values_blue
         return extracted_feature_container
 
     def _determine_captured_pieces_and_values(self, source, target):
