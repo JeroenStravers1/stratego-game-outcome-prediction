@@ -87,7 +87,7 @@ def parse_json_post(request):
         raw_payload = request.get_json(force=True)
     except:
         print 1
-    list_postitions = ""
+    list_positions = ""
     list_unmoved = ""
     list_unrevealed = ""
     try:
