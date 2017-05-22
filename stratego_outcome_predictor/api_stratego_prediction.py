@@ -91,6 +91,7 @@ def parse_json_post(request):
     print raw_payload
     print type(raw_payload)
     print "________AAAAAAA______________"
+    print raw_payload['unrevealed_pieces']
         
     list_positions = ""
     list_unmoved = ""
