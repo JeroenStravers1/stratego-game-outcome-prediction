@@ -58,8 +58,8 @@ class HTML_Generator:
         self.draw_board_representation(board_state)
         left_results_column_html = "<div class='left'>"
         right_results_column_html = "<div class='left'>"
-        left_results_column_html, right_results_column_html = self.draw_prediction(init_predictor_output, left_results_column_html, right_results_column_html)
-        left_results_column_html, right_results_column_html = self.draw_game_features(init_feature_dict, left_results_column_html, right_results_column_html)
+        left_results_column_html, right_results_column_html = self.draw_prediction(self.init_predictor_output, left_results_column_html, right_results_column_html)
+        left_results_column_html, right_results_column_html = self.draw_game_features(self.init_feature_dict, left_results_column_html, right_results_column_html)
         left_results_column_html += "</div>"
         right_results_column_html += "</div>"
         self.left_data_column = left_results_column_html
