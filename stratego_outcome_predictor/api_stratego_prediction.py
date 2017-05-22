@@ -13,11 +13,11 @@ from outcome_prediction import StrategoClassifier
 from html_output_generation import HTML_Generator
 
 
-SOURCE = '"source"'
-TARGET = '"target"'
-RANKS_POSITIONS = '"piece_positions"'
-RANKS_UNMOVED = '"unmoved_pieces"'
-RANKS_UNREVEALED = '"unrevealed_pieces"'
+SOURCE = 'source'
+TARGET = 'target'
+RANKS_POSITIONS = 'piece_positions'
+RANKS_UNMOVED = 'unmoved_pieces'
+RANKS_UNREVEALED = 'unrevealed_pieces'
 INDEX_POSITIONS = 0
 INDEX_UNMOVED = 1
 INDEX_UNREVEALED = 2
@@ -66,28 +66,36 @@ def get_prediction(piece_positions, unmoved_pieces, unrevealed_pieces, source, t
     print result
 
 
-def check_for_source_and_target_in_raw_payload(request, parsed_payload):
+def check_for_source_and_target_in_raw_payload(raw_payload, parsed_payload):
     """get source and target vals, remove pesky escaped quotes"""
     source = raw_payload[SOURCE].replace('"', '')
     target = raw_payload[TARGET].replace('"', '')
-    try:
-        parsed_payload.append(request.form[SOURCE])
-        parsed_payload.append(request.form[TARGET])
-    except KeyError:
+    if source != "":
+        parsed_payload.append(source)
+        parsed_payload.append(target)
+    else:
         print "no source/target in payload"
 
 
 def parse_json_post(request):
     """parse a json post into ndarrays for board state representations and strings for source and target"""
-    #raw_payload = request.get_json(force=True)
-    list_positions = json.loads(request.form[RANKS_POSITIONS])
-    list_unmoved = json.loads(request.form[RANKS_UNMOVED])
-    list_unrevealed = json.loads(request.form[RANKS_UNREVEALED])
+    print request
+    raw_payload = ""
+    try:
+        raw_payload = request.get_json(force=True)
+    except:
+        print 1
+    try:
+        list_positions = json.loads(raw_payload[RANKS_POSITIONS])
+        list_unmoved = json.loads(raw_payload[RANKS_UNMOVED])
+        list_unrevealed = json.loads(raw_payload[RANKS_UNREVEALED])
+    except:
+        print 2
     ndarray_positions = np.array(list_positions)
     ndarray_unmoved = np.array(list_unmoved)
     ndarray_unrevealed = np.array(list_unrevealed)
     parsed_payload = [ndarray_positions, ndarray_unmoved, ndarray_unrevealed]
-    check_for_source_and_target_in_raw_payload(request, parsed_payload)
+    check_for_source_and_target_in_raw_payload(raw_payload, parsed_payload)
     return parsed_payload
 
 
