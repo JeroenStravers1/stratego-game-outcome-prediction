@@ -66,28 +66,28 @@ def get_prediction(piece_positions, unmoved_pieces, unrevealed_pieces, source, t
     print result
 
 
-def check_for_source_and_target_in_raw_payload(raw_payload, parsed_payload):
+def check_for_source_and_target_in_raw_payload(request, parsed_payload):
     """get source and target vals, remove pesky escaped quotes"""
     source = raw_payload[SOURCE].replace('"', '')
     target = raw_payload[TARGET].replace('"', '')
-    if source != "":
-        parsed_payload.append(source)
-        parsed_payload.append(target)
-    else:
+    try:
+        parsed_payload.append(request.form[SOURCE].replace('"', ''))
+        parsed_payload.append(request.form[TARGET].replace('"', ''))
+    escept KeyError:
         print "no source/target in payload"
 
 
 def parse_json_post(request):
     """parse a json post into ndarrays for board state representations and strings for source and target"""
-    raw_payload = request.get_json(force=True)
-    list_positions = json.loads(raw_payload[RANKS_POSITIONS])
-    list_unmoved = json.loads(raw_payload[RANKS_UNMOVED])
-    list_unrevealed = json.loads(raw_payload[RANKS_UNREVEALED])
+    #raw_payload = request.get_json(force=True)
+    list_positions = json.loads(request.form[RANKS_POSITIONS])
+    list_unmoved = json.loads(request.form[RANKS_UNMOVED])
+    list_unrevealed = json.loads(request.form[RANKS_UNREVEALED])
     ndarray_positions = np.array(list_positions)
     ndarray_unmoved = np.array(list_unmoved)
     ndarray_unrevealed = np.array(list_unrevealed)
     parsed_payload = [ndarray_positions, ndarray_unmoved, ndarray_unrevealed]
-    check_for_source_and_target_in_raw_payload(raw_payload, parsed_payload)
+    check_for_source_and_target_in_raw_payload(request, parsed_payload)
     return parsed_payload
 
 
