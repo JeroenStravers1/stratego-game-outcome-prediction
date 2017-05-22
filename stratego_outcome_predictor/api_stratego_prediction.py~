@@ -85,17 +85,20 @@ def parse_json_post(request):
     raw_payload = ""
     try:
         raw_payload = request.get_json(force=True)
-    except:
+    except Exception as err_one:
         print 1
-    list_postitions = ""
+        print err_one
+        
+    list_positions = ""
     list_unmoved = ""
     list_unrevealed = ""
     try:
         list_positions = json.loads(raw_payload[RANKS_POSITIONS])
         list_unmoved = json.loads(raw_payload[RANKS_UNMOVED])
         list_unrevealed = json.loads(raw_payload[RANKS_UNREVEALED])
-    except:
+    except Exception as err_two:
         print 2
+        print err_two
     ndarray_positions = np.array(list_positions)
     ndarray_unmoved = np.array(list_unmoved)
     ndarray_unrevealed = np.array(list_unrevealed)
