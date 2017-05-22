@@ -79,12 +79,17 @@ def check_for_source_and_target_in_raw_payload(raw_payload, parsed_payload):
 
 def parse_json_post(request):
     """parse a json post into ndarrays for board state representations and strings for source and target"""
-    print request
+    print request.headers
+    print 00000000000000000000000
+    print request.__dict__
     raw_payload = ""
     try:
         raw_payload = request.get_json(force=True)
     except:
         print 1
+    list_postitions = ""
+    list_unmoved = ""
+    list_unrevealed = ""
     try:
         list_positions = json.loads(raw_payload[RANKS_POSITIONS])
         list_unmoved = json.loads(raw_payload[RANKS_UNMOVED])
