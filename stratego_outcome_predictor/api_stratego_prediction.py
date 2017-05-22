@@ -109,7 +109,9 @@ def parse_json_post(request):
 
 @app.route("/new_game", methods=["POST"])
 def init_new_game():
+    print "hierzo"
     print request.data
+    print "einde"
     parsed_payload = parse_json_post(request)
     print request
     print "_____________________________"
